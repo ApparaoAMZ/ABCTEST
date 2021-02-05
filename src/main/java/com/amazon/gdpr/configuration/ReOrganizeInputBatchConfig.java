@@ -113,7 +113,7 @@ public class ReOrganizeInputBatchConfig {
 				+ "GD.PH_CANDIDATE_PROVIDED_STATUS__C = 'Cleared' OR GD.PH_MASTER_DATA_STATUS__C = 'Cleared' OR " 
 				+ "GD.PH_WITH_CONSENT_STATUS__C = 'Cleared') AND GD.COUNTRY_CODE__C = DL.COUNTRY_CODE "	
 				+ "AND (GD.CREATEDDATE > DL.LAST_DATA_LOADED_DATE OR GD.LASTMODIFIEDDATE > DL.LAST_DATA_LOADED_DATE) "
-				+ "AND (GD.CREATEDDATE <= RM.DATA_LOAD_DATE AND RM.RUN_ID = "+runId				
+				+ " AND (GD.CREATEDDATE <= RM.DATA_LOAD_DATE AND RM.RUN_ID = "+runId				
 				+ "AND GD.COUNTRY_CODE__C =  \'"+countryCode+"\' ORDER BY GD.CANDIDATE__C ";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: GDPR Depersonalization Data Fetch Query : "+gdprDepersonalizationDataFetch); 
 		JdbcCursorItemReader<GdprDepersonalizationInput> reader = new JdbcCursorItemReader<GdprDepersonalizationInput>();
