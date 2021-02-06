@@ -70,7 +70,7 @@ public class AnonymizeJobCompletionListener extends JobExecutionListenerSupport 
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_DEPERSONALIZATION, GlobalConstants.SUB_MODULE_ANONYMIZE_DATA,
 				moduleStatus, moduleStartDateTime, new Date(), anonymizeData, errorMessage);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-			runMgmtDaoImpl.updateRunComments(runId, anonymizeData );
+			//runMgmtDaoImpl.updateRunComments(runId, anonymizeData );
 			
 		} catch(GdprException exception) {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Exception : "+exception.getExceptionMessage());

@@ -139,9 +139,9 @@ public class BackupService {
 			String CURRENT_METHOD = "run";
 			String backupServiceStatus = "";
 			Boolean exceptionOccured = false;
-			Date moduleStartDateTime = null;
-			Date moduleEndDateTime = null;
+			Date moduleStartDateTime = null;			
 			String moduleStatus="";
+			String errorDetails = "";
 			
 			try {
 				moduleStartDateTime = new Date();
@@ -161,14 +161,14 @@ public class BackupService {
 				backupServiceStatus = GlobalConstants.ERR_BACKUPSERVICE_JOB_RUN;
 				System.out.println(MODULE_DATABACKUP + " ::: " + CURRENT_METHOD + " :: " + backupServiceStatus);
 				exception.printStackTrace();
+				errorDetails = exception.getStackTrace().toString();
 			}
 			try {
 				moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE
 						: GlobalConstants.STATUS_SUCCESS;
-				moduleEndDateTime = new Date();
 				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_BACKUPSERVICE,
 						GlobalConstants.SUB_MODULE_BACKUPSERVICE_JOB_INITIALIZE, moduleStatus, moduleStartDateTime,
-						moduleEndDateTime, backupServiceStatus);
+						new Date(), backupServiceStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);				
 			} catch (GdprException exception) {
 				exceptionOccured = true;

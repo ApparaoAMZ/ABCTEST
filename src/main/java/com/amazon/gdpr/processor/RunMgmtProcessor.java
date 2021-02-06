@@ -56,7 +56,7 @@ public class RunMgmtProcessor {
 		long runId = 0;
 		Boolean exceptionOccured = false;
 		Date moduleStartDateTime = null;
-		Date moduleEndDateTime = null;
+		String errorDetails = "";
 		
 		try{
 			moduleStartDateTime = new Date();
@@ -70,13 +70,13 @@ public class RunMgmtProcessor {
 				initializeRunStatus = GlobalConstants.MSG_OLD_RUN_FETCHED + runId;
 			}			
 		} catch(GdprException exception) {
-			initializeRunStatus = initializeRunStatus + exception.getExceptionMessage();
+			initializeRunStatus = initializeRunStatus + "Facing issues in initializing new Run. ";
+			errorDetails = exception.getStackTrace().toString();
 		}
 		try {			
 			String moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
-			moduleEndDateTime = new Date();
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, GlobalConstants.SUB_MODULE_RUN_INITIALIZE,
-					moduleStatus, moduleStartDateTime, moduleEndDateTime, initializeRunStatus);
+					moduleStatus, moduleStartDateTime, new Date(), initializeRunStatus, errorDetails);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 		} catch(GdprException exception) {
 			exceptionOccured = true;

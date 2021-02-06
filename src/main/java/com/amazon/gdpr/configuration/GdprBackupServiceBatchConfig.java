@@ -98,7 +98,7 @@ public class GdprBackupServiceBatchConfig {
 			throws GdprException {
 		String gdprSummaryDataFetch = SqlQueriesConstant.GDPR_SUMMARYDATA_FETCH;
 		String CURRENT_METHOD = "BackupreaderClass";
-		System.out.println(CURRENT_CLASS + " : :: " + CURRENT_METHOD + " :: Inside method. " + runId);
+		System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: Inside method. " + runId);
 		JdbcCursorItemReader<BackupServiceInput> reader = null;
 		Boolean exceptionOccured = false;
 		String backupDataStatus = "";
@@ -115,7 +115,7 @@ public class GdprBackupServiceBatchConfig {
 			backupDataStatus = "Facing issues in reading summary management table. ";
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + backupDataStatus);
 			exception.printStackTrace();
-			errorDetails = exception.getMessage();
+			errorDetails = exception.getStackTrace().toString();
 		}
 		try {
 			if (exceptionOccured) {
@@ -124,7 +124,7 @@ public class GdprBackupServiceBatchConfig {
 				Date moduleStartDateTime = new Date();
 				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_BACKUPSERVICE,
 						GlobalConstants.SUB_MODULE_BACKUPSERVICE_JOB_INITIALIZE, moduleStatus, moduleStartDateTime,
-						moduleStartDateTime, backupDataStatus);
+						moduleStartDateTime, backupDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 			}
 		} catch (GdprException exception) {

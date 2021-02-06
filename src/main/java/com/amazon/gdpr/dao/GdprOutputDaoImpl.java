@@ -119,7 +119,10 @@ public class GdprOutputDaoImpl {
 		public RunModuleMgmt mapRow(ResultSet rs, int rowNum) throws SQLException {
 			@SuppressWarnings("unused")
 			String CURRENT_METHOD = "mapRow";		
-			return new RunModuleMgmt(rs.getLong("RUN_ID"),rs.getString("MODULE_NAME"),rs.getString("SUBMODULE_NAME"),rs.getString("MODULE_STATUS"),rs.getDate("MODULE_START_DATE_TIME"),rs.getDate("MODULE_END_DATE_TIME"),rs.getString("MODULE_COMMENTS"));
+			return new RunModuleMgmt(rs.getLong("RUN_ID"),rs.getString("MODULE_NAME"),
+					rs.getString("SUBMODULE_NAME"),rs.getString("MODULE_STATUS"),
+					rs.getDate("MODULE_START_DATE_TIME"),rs.getDate("MODULE_END_DATE_TIME"),
+					rs.getString("MODULE_COMMENTS"), rs.getString("ERROR_DETAIL"));
 		}
 	}
 

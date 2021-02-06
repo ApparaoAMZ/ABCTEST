@@ -214,10 +214,10 @@ public class ReOrganizeInputBatchConfig {
 				reOrganizeDataStatus  = "Facing issues while processing data. ";
 				System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + reOrganizeDataStatus);
 				exception.printStackTrace();
-				errorDetails = exception.getMessage();
+				errorDetails = exception.getStackTrace().toString();				
 			}
 			try {
-				if(exceptionOccured){
+				if(exceptionOccured) {
 					RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
 							GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 							new Date(), reOrganizeDataStatus, errorDetails);
@@ -225,19 +225,19 @@ public class ReOrganizeInputBatchConfig {
 					throw new GdprException(reOrganizeDataStatus, errorDetails);
 				}
 			} catch(GdprException exception) {
-				reOrganizeDataStatus = reOrganizeDataStatus + exception.getExceptionMessage();
+				reOrganizeDataStatus = reOrganizeDataStatus + GlobalConstants.ERR_MODULE_MGMT_INSERT;
 				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeDataStatus);
-				errorDetails = errorDetails + exception.getMessage();
+				errorDetails = exception.getExceptionDetail();
 				throw new GdprException(reOrganizeDataStatus, errorDetails); 
 			}
-			try{
+			try {
 				hvhOutputDaoImpl.batchInsertGdprDepersonalizationOutput(lstGdprDepersonalizationOutput);
 			} catch (Exception exception) {
 				exceptionOccured = true;
 				reOrganizeDataStatus  = "Facing issues while writing data into GDPR_Depersonalization table. ";
 				System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + reOrganizeDataStatus);
 				exception.printStackTrace();
-				errorDetails = errorDetails + exception.getMessage(); 
+				errorDetails = errorDetails + exception.getStackTrace().toString(); 
 			}
 			try {
 				if(exceptionOccured){
@@ -250,7 +250,7 @@ public class ReOrganizeInputBatchConfig {
 			} catch(GdprException exception) {
 				reOrganizeDataStatus = reOrganizeDataStatus + GlobalConstants.ERR_MODULE_MGMT_INSERT;
 				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeDataStatus);
-				errorDetails = errorDetails + exception.getMessage();
+				errorDetails = errorDetails + exception.getExceptionDetail();
 				throw new GdprException(reOrganizeDataStatus, errorDetails); 
 			}
 			return lstGdprDepersonalizationOutput;
@@ -275,20 +275,23 @@ public class ReOrganizeInputBatchConfig {
 				.processor(new ReorganizeDataProcessor())
 				//.writer(new ReorganizeOutputWriter())
 				.build();
+		} catch(GdprException exception) {
+			reOrganizeDataStatus = reOrganizeDataStatus + exception.getExceptionMessage();
+			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeDataStatus);
+			errorDetails = errorDetails + exception.getExceptionDetail();
 		} catch (Exception exception) {
 			exceptionOccured = true;
 			reOrganizeDataStatus  = GlobalConstants.ERR_GDPR_DEPERSONALIZATION_LOAD ;
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + reOrganizeDataStatus);
 			exception.printStackTrace();
-			errorDetails = exception.getMessage();
+			errorDetails = exception.getStackTrace().toString();
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getMessage" + exception.getMessage());
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getLocalizedMessage" + exception.getLocalizedMessage());
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getStackTrace" + exception.getStackTrace());
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: toString" + exception.toString());
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getClass" + exception.getClass());
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getCause" + exception.getCause());
-		}
-		
+		}		
 		try {
 			if(exceptionOccured){
 				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
@@ -300,7 +303,7 @@ public class ReOrganizeInputBatchConfig {
 		} catch(GdprException exception) {
 			reOrganizeDataStatus = reOrganizeDataStatus + exception.getExceptionMessage();
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeDataStatus);
-			errorDetails = errorDetails + exception.getMessage();
+			errorDetails = errorDetails + exception.getExceptionDetail();
 			throw new GdprException(reOrganizeDataStatus, errorDetails); 
 		}
 		return step;		
@@ -323,11 +326,15 @@ public class ReOrganizeInputBatchConfig {
 					.flow(reorganizeInputStep())
 					.end()
 					.build();
+		} catch(GdprException exception) {
+			reOrganizeDataStatus = reOrganizeDataStatus + exception.getExceptionMessage();
+			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeDataStatus);
+			errorDetails = errorDetails + exception.getExceptionDetail();
 		} catch(Exception exception) {
 			exceptionOccured = true;
 			reOrganizeDataStatus = GlobalConstants.ERR_REORGANIZE_JOB_PROCESS;
 			exception.printStackTrace();
-			errorDetails = exception.getMessage();
+			errorDetails = exception.getStackTrace().toString();
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getMessage" + exception.getMessage());
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getLocalizedMessage" + exception.getLocalizedMessage());
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getStackTrace" + exception.getStackTrace());
@@ -346,7 +353,7 @@ public class ReOrganizeInputBatchConfig {
 		} catch(GdprException exception) {
 			reOrganizeDataStatus = reOrganizeDataStatus + GlobalConstants.ERR_MODULE_MGMT_INSERT;
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeDataStatus);
-			errorDetails = errorDetails + exception.getMessage();
+			errorDetails = errorDetails + exception.getExceptionDetail();
 			throw new GdprException(reOrganizeDataStatus, errorDetails); 
 		}
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: After Batch Process : "+LocalTime.now());

@@ -33,28 +33,6 @@ public class RunModuleMgmt {
 	 * @param moduleStartDateTime
 	 * @param moduleEndDateTime
 	 * @param comments
-	 */
-	public RunModuleMgmt(long runId, String moduleName, String subModuleName, String moduleStatus, Date moduleStartDateTime,
-			Date moduleEndDateTime, String comments) {
-		super();		
-		this.runId = runId;
-		this.moduleName = moduleName;
-		this.subModuleName = subModuleName;
-		this.moduleStatus = moduleStatus;
-		this.moduleStartDateTime = moduleStartDateTime;
-		this.moduleEndDateTime = moduleEndDateTime;
-		this.comments = comments;
-	}
-	
-	
-	/**
-	 * @param moduleId
-	 * @param runId
-	 * @param moduleName
-	 * @param moduleStatus
-	 * @param moduleStartDateTime
-	 * @param moduleEndDateTime
-	 * @param comments
 	 * @param errorDetails
 	 */
 	public RunModuleMgmt(long runId, String moduleName, String subModuleName, String moduleStatus, Date moduleStartDateTime,

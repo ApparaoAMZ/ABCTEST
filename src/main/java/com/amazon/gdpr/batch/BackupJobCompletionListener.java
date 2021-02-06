@@ -65,7 +65,7 @@ public class BackupJobCompletionListener extends JobExecutionListenerSupport {
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_BACKUPSERVICE, GlobalConstants.SUB_MODULE_BACKUPSERVICE_DATA,
 					moduleStatus, moduleStartDateTime, new Date(), backUpData, errorMessage);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-			runMgmtDaoImpl.updateRunComments(runId, backUpData);
+			//runMgmtDaoImpl.updateRunComments(runId, backUpData);
 			if(GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(moduleStatus)) {
 				tagDataProcessor.taggingInitialize(runId);
 			}

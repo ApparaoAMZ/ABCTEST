@@ -60,7 +60,7 @@ public class ReorganizeInputCompletionListener extends JobExecutionListenerSuppo
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, GlobalConstants.SUB_MODULE_REORGANIZE_DATA,
 				moduleStatus, moduleStartDateTime, new Date(), reOrganizeDataStatus, failureStatus);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-			runMgmtDaoImpl.updateRunComments(runId, reOrganizeDataStatus);
+			//runMgmtDaoImpl.updateRunComments(runId, reOrganizeDataStatus);
 			
 		} catch(GdprException exception) {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Exception : "+exception.getExceptionMessage());

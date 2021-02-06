@@ -85,9 +85,9 @@ public class TaggingJobCompletionListener extends JobExecutionListenerSupport {
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_DEPERSONALIZATION, GlobalConstants.SUB_MODULE_TAGGED_DATA,
 					moduleStatus, moduleStartDateTime, new Date(), taggingData, errorMessage);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-			runMgmtDaoImpl.updateRunComments(runId, taggingData);
+			//runMgmtDaoImpl.updateRunComments(runId, taggingData);
 		} catch(GdprException exception) {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Exception : "+exception.getExceptionMessage());
-		}		
+		}
 	}
 }
