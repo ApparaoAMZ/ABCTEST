@@ -59,7 +59,7 @@ public class AnonymizeJobCompletionListener extends JobExecutionListenerSupport 
 				anonymizeData = throwable.getMessage();
 			}	
 		} else
-			anonymizeData = GlobalConstants.MSG_ANONYMIZE_DATA + "for runId - "+runId+" for runSummaryId - "+ runSummaryId;
+			anonymizeData = GlobalConstants.MSG_ANONYMIZE_DATA + "for runId - "+runId+"; runSummaryId - "+ runSummaryId+". ";
 						
 		String batchJobStatus = "BATCH JOB COMPLETED SUCCESSFULLY for runId - "+runId+" for runSummaryId - "+ runSummaryId
 				+" with status -"+jobExitStatus;
@@ -67,7 +67,7 @@ public class AnonymizeJobCompletionListener extends JobExecutionListenerSupport 
 		try {
 			String moduleStatus = (jobExecution.getStatus() == BatchStatus.FAILED) ? GlobalConstants.STATUS_FAILURE : 
 				GlobalConstants.STATUS_SUCCESS;
-			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, GlobalConstants.SUB_MODULE_REORGANIZE_DATA,
+			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_DEPERSONALIZATION, GlobalConstants.SUB_MODULE_ANONYMIZE_DATA,
 				moduleStatus, moduleStartDateTime, new Date(), anonymizeData, errorMessage);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 			runMgmtDaoImpl.updateRunComments(runId, anonymizeData );

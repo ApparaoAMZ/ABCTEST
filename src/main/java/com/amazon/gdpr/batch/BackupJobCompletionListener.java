@@ -57,12 +57,12 @@ public class BackupJobCompletionListener extends JobExecutionListenerSupport {
 				backUpData = throwable.getMessage();
 			}	
 		} else
-			backUpData = GlobalConstants.MSG_BACKUPSERVICE_INPUT + "for runId - "+runId;
+			backUpData = GlobalConstants.MSG_BACKUPSERVICE_INPUT + " for runId - "+runId+". ";
 				
 		try {
 			String moduleStatus = (jobExecution.getStatus() == BatchStatus.FAILED) ? GlobalConstants.STATUS_FAILURE : 
 				GlobalConstants.STATUS_SUCCESS;
-			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, GlobalConstants.SUB_MODULE_BACKUPSERVICE_DATA,
+			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_BACKUPSERVICE, GlobalConstants.SUB_MODULE_BACKUPSERVICE_DATA,
 					moduleStatus, moduleStartDateTime, new Date(), backUpData, errorMessage);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 			runMgmtDaoImpl.updateRunComments(runId, backUpData);

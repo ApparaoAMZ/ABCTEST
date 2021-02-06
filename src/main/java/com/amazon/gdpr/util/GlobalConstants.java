@@ -18,7 +18,7 @@ public class GlobalConstants {
 	public static String MODULE_PAGELOAD						= "Page Load Module";
 	public static String MODULE_INITIALIZATION 					= "Initialization Module";
 	public static String SUB_MODULE_RUN_INITIALIZE				= "Run Initialize Sub Module";
-	public static String SUB_MODULE_ANONYMIZE_JOB_INITIALIZE	= "Anonymize Initialize Job Sub Module";
+	public static String SUB_MODULE_ANONYMIZE_JOB_INITIALIZE	= "Anonymize Archival Job Sub Module";
 	public static String SUB_MODULE_BACKUP_TABLE_INITIALIZE		= "Backup Table Initialize Sub Module";
 	public static String SUB_MODULE_REORGANIZE_JOB_INITIALIZE 	= "ReOrganize Input Data Job Sub Module"; 
 	public static String SUB_MODULE_SUMMARY_DATA_INITIALIZE		= "Summary Data Initialize Sub Module";
@@ -28,8 +28,8 @@ public class GlobalConstants {
 	public static String MODULE_DATABACKUP 				= "DataBackup Module";
 	//public static String MODULE_TAGGED				= "Tagging Module";	
 	public static String MODULE_DEPERSONALIZATION 		= "Depersonalization Module";
-	public static String SUB_MODULE_TAGGED_DATA			= "Archival Tables Tagging Data Sub Module";
-	public static String SUB_MODULE_TAG_JOB_INITIALIZE 	= "Archival Tables Tagging Job Sub Module";
+	public static String SUB_MODULE_TAGGED_DATA			= "Tagging Archival Data Sub Module";
+	public static String SUB_MODULE_TAG_JOB_INITIALIZE 	= "Tagging Archival Job Sub Module";
 	public static String SUB_MODULE_ANONYMIZE_DATA		= "Anonymize Archival data Sub Module";
 	
 	public static String MODULE_DATAREFRESH 			= "DataRefresh Module";
@@ -190,8 +190,10 @@ public class GlobalConstants {
 	
 	//Error Messages
 	public static int DUMMY_RUN_ID = 0;
-	public static int ERROR_INITIAL_INDEX = 0;
-	public static int ERROR_DETAIL_SIZE = 4999;
+	public static int INITIAL_INDEX = 0;
+	public static int MODULE_COMMENTS_SIZE = 999;
+	public static int ERROR_DETAIL_SIZE = 4999;	
+	public static int RUN_COMMENTS_SIZE = 9999;
 	public static int WAIT_TIME = 1000;
 	
 	public static String MSG_LOAD_FORM				= "GdprInput Form data loaded. ";
@@ -212,16 +214,17 @@ public class GlobalConstants {
 	public static String MSG_ANONYMIZATION_DTL_ROWS = "New rows inserted in ANONYMIZATION_DETAIL table : ";
 	public static String MSG_SUMMARY_ROWS			= "Summary details : ";	
 	public static String MSG_MODULE_STATUS_INSERT	= "The status details is loaded successfully for the following : ";
+	public static String MSG_BKPUP_TABLE_STATUS		= "Refresh is performed on backup tables and the backup table is updated with columns";
 	public static String MSG_REORGANIZEINPUT		= "The data GDPR_Depersonalization__c has been reorganized for country code - ";	
-	public static String MSG_TAGGING_DATA			= "Tagged the data for SF_ARCHIVE table ";
+	public static String MSG_TAGGING_DATA			= "Tagged the data in SF_ARCHIVE table";
 	public static String MSG_TAGDATA_COUNT_UPDATE   = "Tagged data count is updated in Summary Tables. ";
 	public static String ERR_TAGDATA_COUNT_UPDATE	= "Facing issues while updating the data count of TAG table - ";
-	public static String MSG_ANONYMIZE_DATA			= "Anonymize the data for SF_ARCHIVE table ";
+	public static String MSG_ANONYMIZE_DATA			= "Anonymized the data in SF_ARCHIVE table ";
 	public static String MSG_DATALOAD_DTLS			= "The Timestamp details are updated in DATA_LOAD table. ";
 	
 	public static String MSG_REORGANIZEINPUT_JOB	= "Job initiating GDPR_Depersonalization__c reorganizing is completed. ";
 	public static String MSG_TAGGING_JOB			= "Job initiating Tag Archival tables is completed. ";
-	public static String MSG_DEPERSONALIZATION_JOB  = "Job initiating Depersonalize archival tables is completed. ";
+	public static String MSG_DEPERSONALIZATION_JOB  = "Job initiating Anonymization for archival tables is completed. ";
 	
 	public static String ERR_REORGANIZE_JOB_RUN		= "Facing issues while initiating reorganizing job. ";
 	public static String ERR_TAGGED_JOB_RUN			= "Facing issues while initiating tagged job. ";
@@ -279,7 +282,7 @@ public class GlobalConstants {
 	public static String JOB_BACKUP_SERVICE_INPUT_RUNID		= "RunId";
 	public static String JOB_BACKUP_SERVICE_INPUT_JOBID		= "JobId";	
 
-	public static String MSG_BACKUPSERVICE_JOB			= "Backup Service Job initiated. ";
+	public static String MSG_BACKUPSERVICE_JOB			= "Job initiating the backup service is completed. ";
 	public static String ERR_BACKUPSERVICE_JOB_RUN		= "Facing issues while initiating Backup Service job. ";
 
 	public static String SUB_MODULE_BACKUPSERVICE_JOB_INITIALIZE 	= "Backup Service Job Sub Module"; 

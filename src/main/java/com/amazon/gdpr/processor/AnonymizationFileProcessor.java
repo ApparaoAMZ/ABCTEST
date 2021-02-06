@@ -69,7 +69,6 @@ public class AnonymizationFileProcessor {
 		
 		Boolean exceptionOccured = false;
 		Date moduleStartDateTime = null;
-		Date moduleEndDateTime = null;
 		List<Country> lstCountry = null;
 		String errorDetails = "";
 		String anonymizationProcessStatus = "";
@@ -105,10 +104,9 @@ public class AnonymizationFileProcessor {
 		}
 		try {
 			String moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
-			moduleEndDateTime = new Date();
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
 					GlobalConstants.SUB_MODULE_ANONYMIZE_JOB_INITIALIZE, moduleStatus, moduleStartDateTime, 
-					moduleEndDateTime, anonymizationProcessStatus, errorDetails);
+					new Date(), anonymizationProcessStatus, errorDetails);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 			
 		} catch(GdprException exception) {

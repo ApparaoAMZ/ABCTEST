@@ -2,6 +2,8 @@ package com.amazon.gdpr.model.gdpr.output;
 
 import java.util.Date;
 
+import com.amazon.gdpr.util.GlobalConstants;
+
 public class RunModuleMgmt {
 
 	long moduleId;
@@ -64,8 +66,14 @@ public class RunModuleMgmt {
 		this.moduleStatus = moduleStatus;
 		this.moduleStartDateTime = moduleStartDateTime;
 		this.moduleEndDateTime = moduleEndDateTime;
-		this.comments = comments;
-		this.errorDetails = errorDetails;
+		if(comments != null && comments.length() >= GlobalConstants.MODULE_COMMENTS_SIZE)
+			this.comments = comments.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.MODULE_COMMENTS_SIZE);
+		else
+			this.comments = comments;
+		if(errorDetails != null && errorDetails.length() >= GlobalConstants.ERROR_DETAIL_SIZE)
+			this.errorDetails = errorDetails.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
+		else
+			this.errorDetails = errorDetails;
 	}
 
 	/**

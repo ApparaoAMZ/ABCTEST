@@ -121,7 +121,7 @@ public class AnonymizeBatchConfig {
 						GlobalConstants.SUB_MODULE_ANONYMIZE_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), anonymizeDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus);
 				throw new GdprException(anonymizeDataStatus, errorDetails);
 			}
 		} catch(GdprException exception) {
@@ -156,7 +156,7 @@ public class AnonymizeBatchConfig {
 						GlobalConstants.SUB_MODULE_ANONYMIZE_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), anonymizeDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus);
 				throw new GdprException(anonymizeDataStatus, errorDetails);
 			}
 		} catch(GdprException exception) {
@@ -267,7 +267,7 @@ public class AnonymizeBatchConfig {
 							GlobalConstants.SUB_MODULE_ANONYMIZE_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 							new Date(), anonymizeDataStatus, errorDetails);
 					moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-					runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus+errorDetails);
+					runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus);
 					throw new GdprException(anonymizeDataStatus, errorDetails);
 				}
 			} catch(GdprException exception) {
@@ -302,7 +302,7 @@ public class AnonymizeBatchConfig {
 							GlobalConstants.SUB_MODULE_ANONYMIZE_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 							new Date(), anonymizeDataStatus, errorDetails);
 					moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-					runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus+errorDetails);
+					runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus);
 					throw new GdprException(anonymizeDataStatus, errorDetails);
 				}
 			} catch(GdprException exception) {
@@ -347,7 +347,7 @@ public class AnonymizeBatchConfig {
 						GlobalConstants.SUB_MODULE_ANONYMIZE_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), anonymizeDataStatus, errorDetails);				
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus);
 				throw new GdprException(anonymizeDataStatus, errorDetails);
 			}
 		} catch(GdprException exception) {
@@ -389,7 +389,7 @@ public class AnonymizeBatchConfig {
 						GlobalConstants.SUB_MODULE_ANONYMIZE_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), anonymizeDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, anonymizeDataStatus);
 				throw new GdprException(anonymizeDataStatus, errorDetails);
 			}
 		} catch(GdprException exception) {

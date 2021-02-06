@@ -118,7 +118,7 @@ public class TaggingBatchConfig {
 						GlobalConstants.SUB_MODULE_TAGGED_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), taggingDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, taggingDataStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, taggingDataStatus);
 				throw new GdprException(taggingDataStatus, errorDetails);
 			}
 		} catch(GdprException exception) {
@@ -151,7 +151,7 @@ public class TaggingBatchConfig {
 						GlobalConstants.SUB_MODULE_TAGGED_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), taggingDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, taggingDataStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, taggingDataStatus);
 				throw new GdprException(taggingDataStatus, errorDetails);
 			}
 		} catch(GdprException exception) {
@@ -262,7 +262,7 @@ public class TaggingBatchConfig {
 							GlobalConstants.SUB_MODULE_TAGGED_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 							new Date(), tagArchivalDataStatus, errorDetails);
 					moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-					runMgmtDaoImpl.updateRunComments(runId, tagArchivalDataStatus+errorDetails);
+					runMgmtDaoImpl.updateRunComments(runId, tagArchivalDataStatus);
 					throw new GdprException(tagArchivalDataStatus, errorDetails);					
 				}
 			} catch(GdprException exception) {
@@ -307,7 +307,7 @@ public class TaggingBatchConfig {
 						GlobalConstants.SUB_MODULE_TAGGED_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), taggingStatus, errorDetails);				
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, taggingStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, taggingStatus);
 				throw new GdprException(taggingStatus, errorDetails);
 			}
 		} catch(GdprException exception) {
@@ -348,7 +348,7 @@ public class TaggingBatchConfig {
 						GlobalConstants.SUB_MODULE_TAGGED_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), taggingDataStatus, errorDetails);	
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, taggingDataStatus+errorDetails);
+				runMgmtDaoImpl.updateRunComments(runId, taggingDataStatus);
 				throw new GdprException(taggingDataStatus, errorDetails);
 			}
 		} catch(GdprException exception) {

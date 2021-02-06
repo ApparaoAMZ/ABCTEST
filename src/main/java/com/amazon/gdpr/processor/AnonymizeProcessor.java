@@ -105,14 +105,13 @@ public class AnonymizeProcessor {
 				exception.printStackTrace();
 				errorDetails = exception.getStackTrace().toString();
 			}
-	    	try {	    		
-	    		
-	    			prevModuleStatus = moduleMgmtProcessor.prevJobModuleStatus(runId);
-	    			if (GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(prevModuleStatus)) {
+	    	try {
+    			prevModuleStatus = moduleMgmtProcessor.prevJobModuleStatus(runId);
+    			if (GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(prevModuleStatus)) {
 	    			String tagQueryUpdate = "UPDATE GDPR.GDPR_DEPERSONALIZATION SET HEROKU_STATUS = \'CLEARED\'"
 							+" WHERE RUN_ID = ?";
 					int gdprDepCount = backupServiceDaoImpl.gdprDepStatusUpdate(runId, tagQueryUpdate);
-					depersonalizationDataStatus = depersonalizationDataStatus + "GDPR_DEPERSONALIZATION Heroku status updated for rows : "+gdprDepCount+". ";
+					depersonalizationDataStatus = depersonalizationDataStatus + " Heroku status updated in GDPR_Depersonalization table count : "+gdprDepCount+". ";
 	    		}	    		
 			} catch(Exception exception) {
 				exceptionOccured = true;
@@ -128,7 +127,7 @@ public class AnonymizeProcessor {
 			} catch(GdprException exception) {
 				exceptionOccured = true;
 				depersonalizationDataStatus = depersonalizationDataStatus + GlobalConstants.ERR_DATALOAD_DTLS;
-				errorDetails = errorDetails + exception.getExceptionMessage();
+				errorDetails = errorDetails + exception.getExceptionDetail();
 			}
 	    	try {
 				moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;

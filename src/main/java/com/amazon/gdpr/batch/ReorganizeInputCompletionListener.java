@@ -52,7 +52,7 @@ public class ReorganizeInputCompletionListener extends JobExecutionListenerSuppo
 				reOrganizeDataStatus = throwable.getMessage();
 			}				
 		} else
-			reOrganizeDataStatus = GlobalConstants.MSG_REORGANIZEINPUT + countryCode;
+			reOrganizeDataStatus = GlobalConstants.MSG_REORGANIZEINPUT + countryCode+". ";
 			
 		try {
 			String moduleStatus = (jobExecution.getStatus() == BatchStatus.FAILED) ? GlobalConstants.STATUS_FAILURE : 

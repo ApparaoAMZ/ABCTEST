@@ -72,7 +72,8 @@ public class RunMgmtDaoImpl {
 	public void updateRunStatus(long runId, String runStatus, String runComments) {
 		String CURRENT_METHOD = "updateRunStatus";		
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
-				
+		if(runComments != null && runComments.length() >= GlobalConstants.RUN_COMMENTS_SIZE)
+			runComments = runComments.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.RUN_COMMENTS_SIZE);
 		jdbcTemplate.update(SqlQueriesConstant.RUNMGMT_UPDATE_STATUS, new Object[]{runStatus, runComments, runId});			
 	}
 	
@@ -84,7 +85,8 @@ public class RunMgmtDaoImpl {
 	public void updateRunComments(long runId, String runComments) {
 		String CURRENT_METHOD = "updateRunComments";		
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
-				
+		if(runComments != null && runComments.length() >= GlobalConstants.RUN_COMMENTS_SIZE)
+			runComments = runComments.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.RUN_COMMENTS_SIZE);
 		jdbcTemplate.update(SqlQueriesConstant.RUNMGMT_UPDATE_COMMENTS, new Object[]{runComments, runId});			
 	}
 	

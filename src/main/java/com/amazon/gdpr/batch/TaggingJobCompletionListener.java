@@ -61,7 +61,7 @@ public class TaggingJobCompletionListener extends JobExecutionListenerSupport {
 				taggingData = throwable.getMessage();
 			}	
 		} else{
-			taggingData = GlobalConstants.MSG_TAGGING_DATA + " for runId - "+runId+" for runSummaryId - "+ runSummaryId;
+			taggingData = GlobalConstants.MSG_TAGGING_DATA + " for runId - "+runId+" for runSummaryId - "+ runSummaryId+". ";
 		}
 		try {
 			String sqlQuery = "UPDATE GDPR.RUN_SUMMARY_MGMT SET TAGGED_ROW_COUNT = (SELECT COUNT(TAG.ID) COUNT FROM "+tableName+

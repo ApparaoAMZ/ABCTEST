@@ -32,14 +32,12 @@ public class GdprReadListener implements ItemReadListener {
 
 	@Override
 	public void beforeRead() {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
 
 	@Override
 	public void afterRead(Object item) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
 
 	@Override
@@ -63,7 +61,7 @@ public class GdprReadListener implements ItemReadListener {
 						GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
 						new Date(), reOrganizeDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				runMgmtDaoImpl.updateRunComments(runId, reOrganizeDataStatus+errorDetails);				
+				runMgmtDaoImpl.updateRunComments(runId, reOrganizeDataStatus);				
 			}
 		} catch(GdprException gdprException) {
 			reOrganizeDataStatus = reOrganizeDataStatus + gdprException.getExceptionMessage();

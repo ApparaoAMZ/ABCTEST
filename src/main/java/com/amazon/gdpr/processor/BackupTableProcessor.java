@@ -1,6 +1,7 @@
 package com.amazon.gdpr.processor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,7 @@ import com.amazon.gdpr.dao.RunMgmtDaoImpl;
 import com.amazon.gdpr.model.gdpr.input.ImpactTableDetails;
 import com.amazon.gdpr.model.gdpr.output.BackupTableDetails;
 import com.amazon.gdpr.model.gdpr.output.RunErrorMgmt;
+import com.amazon.gdpr.model.gdpr.output.RunModuleMgmt;
 import com.amazon.gdpr.util.GdprException;
 import com.amazon.gdpr.util.GlobalConstants;
 
@@ -37,44 +39,58 @@ public class BackupTableProcessor {
 	@Autowired
 	RunMgmtDaoImpl runMgmtDaoImpl;
 
+	@Autowired
+	ModuleMgmtProcessor moduleMgmtProcessor;
+	
 	public String processBkpupTable(long runId) throws GdprException {
 		String CURRENT_METHOD = "processBkpupTable";
 		Boolean bkpupTblProcessStatus = false;
-		RunErrorMgmt runErrorMgmt = null;
-		List<BackupTableDetails> lstBackupTableDetails = backupTableProcessorDaoImpl.fetchBackupTableDetails();
-		List<ImpactTableDetails> lstImpactTableDetails = gdprInputDaoImpl.fetchImpactTableDetailsMap();
+		Boolean exceptionOccured = false;
+		String backupStatus = "";
 		String errorDetails = "";
+		Date moduleStartDateTime = null;
 		
 		try {
+			moduleStartDateTime = new Date();
+			List<BackupTableDetails> lstBackupTableDetails = backupTableProcessorDaoImpl.fetchBackupTableDetails();
+			List<ImpactTableDetails> lstImpactTableDetails = gdprInputDaoImpl.fetchImpactTableDetailsMap();
 			if (refreshBackupTables(lstBackupTableDetails)) {
 				bkpupTblProcessStatus = bkpupTableCheck(lstBackupTableDetails, lstImpactTableDetails);
 			}
-			if (!bkpupTblProcessStatus) {
-				// load ModuleMgmt
-				// load ErrorMgmt
-			}
-		} catch (Exception exception) {
+			backupStatus = GlobalConstants.MSG_BKPUP_TABLE_STATUS;
+		} catch (GdprException exception) {
 			System.out.println(
 					CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + GlobalConstants.ERR_RUN_BACKUP_TABLE_PROCESSOR);
-			exception.printStackTrace();
-			errorDetails = exception.getMessage();
-			runErrorMgmt = new RunErrorMgmt(GlobalConstants.DUMMY_RUN_ID, CURRENT_CLASS, CURRENT_METHOD,
-					GlobalConstants.ERR_RUN_BACKUP_TABLE_PROCESSOR, exception.getMessage());
+			exceptionOccured = true;
+			backupStatus = exception.getExceptionMessage();
+			errorDetails = exception.getExceptionDetail();
 		}
+		
 		try {
-			if (runErrorMgmt != null) {
-				gdprOutputDaoImpl.loadErrorDetails(runErrorMgmt);
-				throw new GdprException(GlobalConstants.ERR_RUN_ANONYMIZATION_LOAD, errorDetails);
-			}
-		} catch (Exception exception) {
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: "
-					+ GlobalConstants.ERR_RUN_BACKUP_TABLE_PROCESSOR + GlobalConstants.ERR_RUN_ERROR_MGMT_INSERT);
-			exception.printStackTrace();
+			String moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
+
+			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
+					GlobalConstants.SUB_MODULE_BACKUP_TABLE_INITIALIZE, moduleStatus, moduleStartDateTime, 
+					new Date(), backupStatus, errorDetails);
+			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
+			
+		} catch(GdprException exception) {
+			exceptionOccured = true;
 			errorDetails = errorDetails + exception.getMessage();
-			throw new GdprException(
-					GlobalConstants.ERR_RUN_BACKUP_TABLE_PROCESSOR + GlobalConstants.ERR_RUN_ERROR_MGMT_INSERT, errorDetails);
+			backupStatus = backupStatus + GlobalConstants.ERR_MODULE_MGMT_INSERT;
 		}
-		return "";
+		
+		try{
+			if(exceptionOccured)
+				runMgmtDaoImpl.updateRunStatus(runId, GlobalConstants.STATUS_FAILURE, backupStatus);		
+		} catch(Exception exception) {
+			exceptionOccured = true;
+			errorDetails = errorDetails + exception.getMessage();
+			backupStatus = backupStatus + GlobalConstants.ERR_RUN_MGMT_UPDATE;
+			throw new GdprException(backupStatus, errorDetails);
+		}
+		
+		return backupStatus;
 	}
 
 	/*
@@ -85,31 +101,15 @@ public class BackupTableProcessor {
 		System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + ":: Inside method");
 		Boolean refreshBkpupTableStatus = false;
 		// Fetch the Backup Table name from ImpactTable and truncate the tables
-		RunErrorMgmt runErrorMgmt = null;
-		String errorDetails = "";
 		
 		try {
 			refreshBkpupTableStatus = backupTableProcessorDaoImpl.refreshBackupTables(lstBackupTableDetails);
 		} catch (Exception exception) {
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: "
 					+ GlobalConstants.ERR_RUN_BACKUP_TABLE_REFRESH);
-			exception.printStackTrace();
-			errorDetails = exception.getMessage();
-			runErrorMgmt = new RunErrorMgmt(GlobalConstants.DUMMY_RUN_ID, CURRENT_CLASS, CURRENT_METHOD,
-					GlobalConstants.ERR_RUN_BACKUP_TABLE_REFRESH, exception.getMessage());
-		}
-		try {
-			if (runErrorMgmt != null) {
-				gdprOutputDaoImpl.loadErrorDetails(runErrorMgmt);
-				throw new GdprException(GlobalConstants.ERR_RUN_ANONYMIZATION_LOAD, errorDetails);
-			}
-		} catch (Exception exception) {
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: "
-					+ GlobalConstants.ERR_RUN_BACKUP_TABLE_REFRESH + GlobalConstants.ERR_RUN_ERROR_MGMT_INSERT);
-			exception.printStackTrace();
-			errorDetails = errorDetails + exception.getMessage();
-			throw new GdprException(
-					GlobalConstants.ERR_RUN_BACKUP_TABLE_REFRESH + GlobalConstants.ERR_RUN_ERROR_MGMT_INSERT,  errorDetails);
+			//exception.printStackTrace();
+			String errorDetails = exception.getMessage();
+			throw new GdprException(GlobalConstants.ERR_RUN_BACKUP_TABLE_REFRESH, errorDetails);
 		}
 		return refreshBkpupTableStatus;
 	}
@@ -149,8 +149,6 @@ public class BackupTableProcessor {
 		String stUser = "";
 		String stAtt = "";
         List<String> altQury=new ArrayList<String>();
-		RunErrorMgmt runErrorMgmt = null;
-		String errorDetails = "";
 		
 		try {
 			for (ImpactTableDetails impactTableDtls : lstImpactTableDetails) {
@@ -164,9 +162,7 @@ public class BackupTableProcessor {
 					if (impactTableName.equalsIgnoreCase(backupTableName)
 							&& impactColumnName.equalsIgnoreCase(backupColumnName)) {
 						clExistStatus = true;
-
 					}
-
 				}
 				if (!clExistStatus) {
 					switch (impactTableName) {
@@ -290,28 +286,14 @@ public class BackupTableProcessor {
 			
 			System.out.println("altQryArr altQryArr : "+altQryArr);
 			if (altQury != null && !altQury.isEmpty()) {
-
-			bkpupTableCheckStatus=backupTableProcessorDaoImpl.alterBackupTable(altQryArr);
+				bkpupTableCheckStatus=backupTableProcessorDaoImpl.alterBackupTable(altQryArr);
 			}
 		} catch (Exception exception) {
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: "
 					+ GlobalConstants.ERR_RUN_BACKUP_TABLE_COLUMNCHECK);
-			exception.printStackTrace();
-			errorDetails = exception.getMessage();
-			runErrorMgmt = new RunErrorMgmt(GlobalConstants.DUMMY_RUN_ID, CURRENT_CLASS, CURRENT_METHOD,
-					GlobalConstants.ERR_RUN_BACKUP_TABLE_COLUMNCHECK, exception.getMessage());
-		}
-		try {
-			if (runErrorMgmt != null) {
-				gdprOutputDaoImpl.loadErrorDetails(runErrorMgmt);
-				throw new GdprException(GlobalConstants.ERR_RUN_ANONYMIZATION_LOAD, errorDetails);
-			}
-		} catch (Exception exception) {
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: "
-					+ GlobalConstants.ERR_RUN_BACKUP_TABLE_COLUMNCHECK + GlobalConstants.ERR_RUN_ERROR_MGMT_INSERT);
-			exception.printStackTrace();
-			errorDetails = errorDetails + exception.getMessage();
-			throw new GdprException(GlobalConstants.ERR_RUN_BACKUP_TABLE_COLUMNCHECK + GlobalConstants.ERR_RUN_ERROR_MGMT_INSERT, errorDetails);
+			//exception.printStackTrace();
+			String errorDetails = exception.getMessage();
+			throw new GdprException(GlobalConstants.ERR_RUN_BACKUP_TABLE_COLUMNCHECK, errorDetails);
 		}
 		return bkpupTableCheckStatus;
 	}

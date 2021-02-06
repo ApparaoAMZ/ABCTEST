@@ -24,7 +24,7 @@ public class RunErrorMgmt {
 		this.errorMethod = errorMethod;
 		this.errorSummary = errorSummary;
 		if(errorDetail != null && errorDetail.length() > GlobalConstants.ERROR_DETAIL_SIZE)
-			this.errorDetail = errorDetail.substring(GlobalConstants.ERROR_INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
+			this.errorDetail = errorDetail.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
 		else
 			this.errorDetail = errorDetail;
 	}
@@ -46,7 +46,7 @@ public class RunErrorMgmt {
 		this.errorMethod = errorMethod;
 		this.errorSummary = errorSummary;		
 		if(errorDetail != null && errorDetail.length() > GlobalConstants.ERROR_DETAIL_SIZE)
-			this.errorDetail = errorDetail.substring(GlobalConstants.ERROR_INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
+			this.errorDetail = errorDetail.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
 		else
 			this.errorDetail = errorDetail;
 	}
@@ -122,7 +122,7 @@ public class RunErrorMgmt {
 	 */
 	public void setErrorDetail(String errorDetail) {
 		if(errorDetail != null && errorDetail.length() > GlobalConstants.ERROR_DETAIL_SIZE)
-			this.errorDetail = errorDetail.substring(GlobalConstants.ERROR_INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
+			this.errorDetail = errorDetail.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
 		else
 			this.errorDetail = errorDetail;		
 	}	
