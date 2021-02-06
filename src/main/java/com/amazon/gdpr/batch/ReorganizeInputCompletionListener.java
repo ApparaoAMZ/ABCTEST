@@ -37,7 +37,7 @@ public class ReorganizeInputCompletionListener extends JobExecutionListenerSuppo
 		String CURRENT_METHOD = "afterJob";		
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
 		
-		String reOrganizeDataStatus = "";
+		String reOrganizeData = CURRENT_CLASS+" "+CURRENT_METHOD+" ";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+jobRelatedName+ " BATCH JOB COMPLETED SUCCESSFULLY");
 		JobParameters jobParameters = jobExecution.getJobParameters();
 		
@@ -49,16 +49,21 @@ public class ReorganizeInputCompletionListener extends JobExecutionListenerSuppo
 		if(lstThrowable != null && lstThrowable.size() > 0) {
 			for(Throwable throwable : lstThrowable) {
 				failureStatus = failureStatus + throwable.getCause();
-				reOrganizeDataStatus = throwable.getMessage();
+				reOrganizeData = reOrganizeData + throwable.getMessage();
+				
+				System.out.println("getLocalizedMessage"+throwable.getLocalizedMessage());
+				System.out.println("getMessage"+throwable.getMessage());
+				System.out.println("getCause"+throwable.getCause());
+				System.out.println("getStackTrace"+throwable.getStackTrace());
 			}				
 		} else
-			reOrganizeDataStatus = GlobalConstants.MSG_REORGANIZEINPUT + countryCode+". ";
+			reOrganizeData = reOrganizeData + GlobalConstants.MSG_REORGANIZEINPUT + countryCode+". ";
 			
 		try {
 			String moduleStatus = (jobExecution.getStatus() == BatchStatus.FAILED) ? GlobalConstants.STATUS_FAILURE : 
 				GlobalConstants.STATUS_SUCCESS;
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, GlobalConstants.SUB_MODULE_REORGANIZE_DATA,
-				moduleStatus, moduleStartDateTime, new Date(), reOrganizeDataStatus, failureStatus);
+				moduleStatus, moduleStartDateTime, new Date(), reOrganizeData, failureStatus);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 			//runMgmtDaoImpl.updateRunComments(runId, reOrganizeDataStatus);
 			

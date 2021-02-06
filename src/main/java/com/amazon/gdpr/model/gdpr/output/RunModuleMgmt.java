@@ -45,11 +45,11 @@ public class RunModuleMgmt {
 		this.moduleStartDateTime = moduleStartDateTime;
 		this.moduleEndDateTime = moduleEndDateTime;
 		if(comments != null && comments.length() >= GlobalConstants.MODULE_COMMENTS_SIZE)
-			this.comments = comments.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.MODULE_COMMENTS_SIZE);
+			this.comments = comments.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.MODULE_COMMENTS_SIZE-1);
 		else
 			this.comments = comments;
 		if(errorDetails != null && errorDetails.length() >= GlobalConstants.ERROR_DETAIL_SIZE)
-			this.errorDetails = errorDetails.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE);
+			this.errorDetails = errorDetails.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE-1);
 		else
 			this.errorDetails = errorDetails;
 	}
