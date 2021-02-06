@@ -98,7 +98,7 @@ public class GdprBackupServiceBatchConfig {
 			throws GdprException {
 		String gdprSummaryDataFetch = SqlQueriesConstant.GDPR_SUMMARYDATA_FETCH;
 		String CURRENT_METHOD = "BackupreaderClass";
-		System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: Inside method. " + runId);
+		System.out.println(CURRENT_CLASS + " : :: " + CURRENT_METHOD + " :: Inside method. " + runId);
 		JdbcCursorItemReader<BackupServiceInput> reader = null;
 		Boolean exceptionOccured = false;
 		String backupDataStatus = "";
