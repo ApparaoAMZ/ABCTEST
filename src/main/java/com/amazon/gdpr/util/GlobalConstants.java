@@ -180,7 +180,7 @@ public class GlobalConstants {
 	public static String TBL_GDPR_DEPERSONALIZATION__C 			= "GDPR_DEPERSONALIZATION__C";
 	public static String JOB_INPUT_RUN_ID   					= "RunId";	
 	public static String JOB_INPUT_JOB_ID  	 					= "JobId";
-	public static String JOB_INPUT_START_DATE					= "StartDate";
+	public static String JOB_INPUT_START_DATE					= "StartDate12";
 	public static String JOB_INPUT_RUN_SUMMARY_ID 				= "RunSummaryId";
 	public static String JOB_INPUT_TABLE_NAME 					= "TableName";
 	public static String JOB_INPUT_COUNTRY_CODE 				= "CountryCode";
