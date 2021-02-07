@@ -196,7 +196,7 @@ public class TaggingBatchConfig {
 			JobParameters jobParameters = stepExecution.getJobParameters();
 			runId	= jobParameters.getLong(GlobalConstants.JOB_INPUT_RUN_ID);			
 			currentRun 	= jobParameters.getLong(GlobalConstants.JOB_INPUT_JOB_ID);
-			runSummaryId = jobParameters.getLong("asdc");
+			runSummaryId = jobParameters.getLong(GlobalConstants.JOB_INPUT_RUN_SUMMARY_ID);
 			moduleStartDateTime = jobParameters.getDate(GlobalConstants.JOB_INPUT_START_DATE);
 			/*tableName = jobParameters.getString(GlobalConstants.JOB_INPUT_TABLE_NAME);
 			countryCode = jobParameters.getString(GlobalConstants.JOB_INPUT_COUNTRY_CODE);
