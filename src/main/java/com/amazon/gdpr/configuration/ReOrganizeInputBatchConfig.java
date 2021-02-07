@@ -119,7 +119,7 @@ public class ReOrganizeInputBatchConfig {
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: GDPR Depersonalization Data Fetch Query : "+gdprDepersonalizationDataFetch); 
 		JdbcCursorItemReader<GdprDepersonalizationInput> reader = new JdbcCursorItemReader<GdprDepersonalizationInput>();
 		reader.setDataSource(dataSource);
-		reader.setSql(gdprDepersonalizationDataFetch);
+		reader.setSql(gdprDepersonalizationDataFetch+1);
 		reader.setRowMapper(new GdprDepersonalizationInputRowMapper());
 		return reader;
 	}
