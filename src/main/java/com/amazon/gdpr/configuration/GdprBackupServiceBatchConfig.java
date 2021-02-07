@@ -255,7 +255,7 @@ public class GdprBackupServiceBatchConfig {
 						selectColumns, runId);
 				completeQuery = completeQuery.replaceAll("TAG.", "SF_ARCHIVE.");
 				@SuppressWarnings("unchecked")
-				String backupDataInsertQuery = "INSERT INTO GDPR.AS" + backupTableName + " (ID," + selectColumns + ") "
+				String backupDataInsertQuery = "INSERT INTO GDPR." + backupTableName + " (ID," + selectColumns + ") "
 						+ completeQuery + " ON CONFLICT (id) DO UPDATE " + "  SET " + splittedValues + ";";
 				insertcount = backupServiceDaoImpl.insertBackupTable(backupDataInsertQuery);
 
