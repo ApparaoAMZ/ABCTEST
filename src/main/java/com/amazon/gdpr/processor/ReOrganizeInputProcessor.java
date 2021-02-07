@@ -114,13 +114,13 @@ public class ReOrganizeInputProcessor {
 			} 
 	    	try {
 				prevJobModuleStatus = moduleMgmtProcessor.prevJobModuleStatus(runId);				
-				moduleStatus = (exceptionOccured || prevJobModuleStatus.equalsIgnoreCase(GlobalConstants.STATUS_FAILURE)) ? 
+				moduleStatus = (exceptionOccured) ? 
 						GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
 				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
 						GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, moduleStatus, moduleStartDateTime, 
 						new Date(), reOrganizeDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);	
-				if(GlobalConstants.STATUS_FAILURE.equalsIgnoreCase(moduleStatus)){
+				if(exceptionOccured || prevJobModuleStatus.equalsIgnoreCase(GlobalConstants.STATUS_FAILURE)){
 					runMgmtDaoImpl.updateRunStatus(runId, GlobalConstants.STATUS_FAILURE, reOrganizeDataStatus);
 				}else{
 					runMgmtDaoImpl.updateRunComments(runId, reOrganizeDataStatus);

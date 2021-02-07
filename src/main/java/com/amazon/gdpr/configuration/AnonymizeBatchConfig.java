@@ -93,7 +93,7 @@ public class AnonymizeBatchConfig {
 	@StepScope
 	public JdbcCursorItemReader<AnonymizeTable> anonymizeTableReader(@Value("#{jobParameters[RunId]}") long runId,
 			@Value("#{jobParameters[RunSummaryId]}") long runSummaryId, 
-			@Value("#{jobParameters[StartDate]}") Date moduleStartDateTime) throws GdprException {
+			@Value("#{jobParameters[StartDate]}") Date moduleStartDateTime) {
 		String CURRENT_METHOD = "reader";
 		//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: runId "+runId);
@@ -105,7 +105,20 @@ public class AnonymizeBatchConfig {
 		AnonymizeTable anonymizeTable = null;
 		RunSummaryMgmt runSummaryMgmt = null;
 		
-		try {
+		runSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId, runSummaryId);
+		if (runSummaryMgmt != null) {
+			String taggedQueryFetch = "SELECT DISTINCT ID FROM TAG." +runSummaryMgmt.getImpactTableName()+
+					" WHERE CATEGORY_ID = "+runSummaryMgmt.getCategoryId() +" AND COUNTRY_CODE = \'"+runSummaryMgmt.getCountryCode()+
+					"\' AND STATUS = \'SCHEDULED\'";
+			reader = new JdbcCursorItemReader<AnonymizeTable>();
+			reader.setDataSource(dataSource);
+			reader.setSql(taggedQueryFetch);
+			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: taggedQueryFetch "+taggedQueryFetch);
+			reader.setRowMapper(new AnonymizeTableRowMapper(runId, runSummaryMgmt.getDepersonalizationQuery(), 
+					runSummaryMgmt.getImpactTableName(), runSummaryMgmt.getCategoryId(), runSummaryMgmt.getCountryCode()));
+		}
+		return reader;
+		/*try {
 			runSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId, runSummaryId);
 		} catch (Exception exception) {
 			exceptionOccured = true;
@@ -141,7 +154,7 @@ public class AnonymizeBatchConfig {
 				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: taggedQueryFetch "+taggedQueryFetch);
 				reader.setRowMapper(new AnonymizeTableRowMapper(runId, runSummaryMgmt.getDepersonalizationQuery(), 
 						runSummaryMgmt.getImpactTableName(), runSummaryMgmt.getCategoryId(), runSummaryMgmt.getCountryCode()));
-				anonymizeDataStatus = "Reading tagged tables for Run Summary Id "+runSummaryMgmt.getSummaryId();
+				//anonymizeDataStatus = "Reading tagged tables for Run Summary Id "+runSummaryMgmt.getSummaryId();
 			}
 		} catch (Exception exception) {
 			exceptionOccured = true;
@@ -165,7 +178,7 @@ public class AnonymizeBatchConfig {
 			errorDetails = errorDetails + exception.getMessage();
 			throw new GdprException(anonymizeDataStatus, errorDetails); 
 		}
-		return reader;
+		return reader;*/
 	}
 	
 	//To set values into Tag Tables Object
@@ -198,7 +211,7 @@ public class AnonymizeBatchConfig {
 		//private Map<String, String> mapTableIdToName = null;
 		
 		@BeforeStep
-		public void beforeStep(final StepExecution stepExecution) throws GdprException {
+		public void beforeStep(final StepExecution stepExecution) {
 			String CURRENT_METHOD = "beforeStep";
 			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Job Before Step : "+LocalTime.now());
@@ -235,7 +248,7 @@ public class AnonymizeBatchConfig {
 		}
 
 		@Override
-		public void write(List<? extends AnonymizeTable> lstAnonymizeTable) throws GdprException {
+		public void write(List<? extends AnonymizeTable> lstAnonymizeTable) {
 			String CURRENT_METHOD = "write";
 			Boolean exceptionOccured = false;
 			String anonymizeDataStatus = "";
@@ -243,7 +256,7 @@ public class AnonymizeBatchConfig {
 			long runId = 0;
 			
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
-			try {
+			//try {
 				if(lstAnonymizeTable != null && lstAnonymizeTable.size() > 0){					
 					AnonymizeTable firstRowAnonymizeTable = (AnonymizeTable) lstAnonymizeTable.get(0);	
 					runId = firstRowAnonymizeTable.getRunId();
@@ -252,9 +265,9 @@ public class AnonymizeBatchConfig {
 					System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: lstAnonymizeTable size "+lstAnonymizeTable.size());
 										
 					backupServiceDaoImpl.anonymizeArchivalTables(lstAnonymizeTable, depersonalizeQuery);
-					anonymizeDataStatus = "Anonymization completed for runSummaryId - "+ runSummaryId;
+					//anonymizeDataStatus = "Anonymization completed for runSummaryId - "+ runSummaryId;
 				}
-			} catch (Exception exception) {
+			/*} catch (Exception exception) {
 				exceptionOccured = true;
 				anonymizeDataStatus  = "Facing issues while anonymizing data in archival table. ";
 				System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + anonymizeDataStatus);
@@ -278,17 +291,17 @@ public class AnonymizeBatchConfig {
 				throw new GdprException(anonymizeDataStatus, errorDetails); 
 			}
 			try {
-				if(! exceptionOccured){
-					if(lstAnonymizeTable != null && lstAnonymizeTable.size() > 0){					
+				if(! exceptionOccured) {*/
+					if(lstAnonymizeTable != null && lstAnonymizeTable.size() > 0) {					
 						AnonymizeTable firstRowAnonymizeTable = (AnonymizeTable) lstAnonymizeTable.get(0);										
 						System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: lstAnonymizeTable size "+lstAnonymizeTable.size());							
 						String tagQueryUpdate = "UPDATE TAG."+firstRowAnonymizeTable.getTableName()+" SET STATUS = \'CLEARED\'"
 								+" WHERE CATEGORY_ID = "+firstRowAnonymizeTable.getCategoryId()+" AND COUNTRY_CODE = \'"
 								+firstRowAnonymizeTable.getCountryCode()+"\' AND ID = ? AND RUN_ID = ?";
 						backupServiceDaoImpl.updateTagTables(lstAnonymizeTable, tagQueryUpdate);
-						anonymizeDataStatus = anonymizeDataStatus+" Tag tables status updated for runSummaryId - "+ runSummaryId;
+						//anonymizeDataStatus = anonymizeDataStatus+" Tag tables status updated for runSummaryId - "+ runSummaryId;
 					}
-				}				
+				/*} 
 			} catch (Exception exception) {
 				exceptionOccured = true;
 				anonymizeDataStatus  = anonymizeDataStatus + "Facing issues while updating data in tagging table. ";
@@ -310,12 +323,12 @@ public class AnonymizeBatchConfig {
 				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+anonymizeDataStatus);
 				errorDetails = errorDetails + exception.getStackTrace().toString();
 				throw new GdprException(anonymizeDataStatus, errorDetails); 
-			}
+			}*/
 		}
 	}
 		
 	@Bean
-	public Step anonymizeStep() throws GdprException {
+	public Step anonymizeStep() {
 		String CURRENT_METHOD = "anonymizeStep";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: runId "+runId);
@@ -325,7 +338,7 @@ public class AnonymizeBatchConfig {
 		String anonymizeDataStatus = "";
 		String errorDetails = "";
 	
-		try {			
+		//try {			
 			step = stepBuilderFactory.get(CURRENT_METHOD)
 				.<AnonymizeTable, AnonymizeTable> chunk(SqlQueriesConstant.BATCH_ROW_COUNT)
 				.reader(anonymizeTableReader(0,0, new Date()))
@@ -333,7 +346,7 @@ public class AnonymizeBatchConfig {
 				.writer(new AnonymizeInputWriter<Object>(new Date(), 0))
 				.listener(listener())
 				.build();
-		} catch (Exception exception) {
+		/*} catch (Exception exception) {
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + GlobalConstants.ERR_TAGGING_LOAD);
 			exceptionOccured = true;
 			exception.printStackTrace();
@@ -355,12 +368,12 @@ public class AnonymizeBatchConfig {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+anonymizeDataStatus);
 			errorDetails = errorDetails + exception.getStackTrace().toString();
 			throw new GdprException(anonymizeDataStatus, errorDetails); 
-		}
+		}*/
 		return step;
 	}
 			
 	@Bean
-	public Job processAnonymizeJob() throws GdprException {
+	public Job processAnonymizeJob() {
 		String CURRENT_METHOD = "processAnonymizeJob";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Before Batch Process : "+LocalTime.now());
@@ -371,13 +384,13 @@ public class AnonymizeBatchConfig {
 		String anonymizeDataStatus = "";
 		String errorDetails = "";
 		
-		try {
+		//try {
 			job = jobBuilderFactory.get(CURRENT_METHOD)
 					.incrementer(new RunIdIncrementer()).listener(anonymizeListener(GlobalConstants.JOB_ANONYMIZE))										
 					.flow(anonymizeStep())
 					.end()
 					.build();
-		} catch(Exception exception) {
+		/*} catch(Exception exception) {
 			exceptionOccured = true;
 			anonymizeDataStatus = GlobalConstants.ERR_ANONYMIZE_JOB_RPOCESS;
 			exception.printStackTrace();
@@ -397,7 +410,7 @@ public class AnonymizeBatchConfig {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+anonymizeDataStatus);
 			errorDetails = errorDetails + exception.getStackTrace().toString();
 			throw new GdprException(anonymizeDataStatus, errorDetails); 
-		}
+		}*/
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: After Batch Process : "+LocalTime.now());
 		return job;
 	}

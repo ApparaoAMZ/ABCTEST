@@ -191,9 +191,9 @@ public class GlobalConstants {
 	//Error Messages
 	public static int DUMMY_RUN_ID = 0;
 	public static int INITIAL_INDEX = 0;
-	public static int MODULE_COMMENTS_SIZE = 999;
-	public static int ERROR_DETAIL_SIZE = 4999;	
-	public static int RUN_COMMENTS_SIZE = 9999;
+	public static int MODULE_COMMENTS_SIZE = 14999;
+	public static int ERROR_DETAIL_SIZE = 14999;	
+	public static int RUN_COMMENTS_SIZE = 11999;
 	public static int WAIT_TIME = 1000;
 	
 	public static String MSG_LOAD_FORM				= "GdprInput Form data loaded. ";

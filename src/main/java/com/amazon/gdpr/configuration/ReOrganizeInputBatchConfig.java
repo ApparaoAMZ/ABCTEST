@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class ReOrganizeInputBatchConfig {
 	@StepScope
 	public JdbcCursorItemReader<GdprDepersonalizationInput> gdprDepersonalizationDBreader(@Value("#{jobParameters[RunId]}") long runId,
 			@Value("#{jobParameters[CountryCode]}") String countryCode, 
-			@Value("#{jobParameters[StartDate]}") Date moduleStartDateTime) throws GdprException {
+			@Value("#{jobParameters[StartDate]}") Date moduleStartDateTime) {
 					
 		String CURRENT_METHOD = "reader";		
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
@@ -114,7 +115,7 @@ public class ReOrganizeInputBatchConfig {
 				+ "GD.PH_WITH_CONSENT_STATUS__C = 'Cleared') AND GD.COUNTRY_CODE__C = DL.COUNTRY_CODE "	
 				+ "AND (GD.CREATEDDATE > DL.LAST_DATA_LOADED_DATE OR GD.LASTMODIFIEDDATE > DL.LAST_DATA_LOADED_DATE) "
 				+ "AND GD.CREATEDDATE <= RM.DATA_LOAD_DATE AND RM.RUN_ID = "+runId				
-				+ " AND GD.COUNTRY_CODE__C =  \'"+countryCode+"\' ORDER BY GD.CANDIDATE__C ";
+				+ " AND GD.COUNTRY_CODE__C =  \'"+countryCode+"\' ORDER BY GD.CANDIDATE__C";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: GDPR Depersonalization Data Fetch Query : "+gdprDepersonalizationDataFetch); 
 		JdbcCursorItemReader<GdprDepersonalizationInput> reader = new JdbcCursorItemReader<GdprDepersonalizationInput>();
 		reader.setDataSource(dataSource);
@@ -152,45 +153,34 @@ public class ReOrganizeInputBatchConfig {
 		private String CURRENT_CLASS		 		= GlobalConstants.CLS_JOB_REORGANIZEDATAPROCESSOR;
 		private Map<String, String> mapCategory = null;
 		private Map<String, String> mapFieldCategory = null;
-		//private Map<String, String> mapProcessedDate = null;
-		//private Date dataLoadEndDate = null;
-		//private Map<String, String> fieldCategoryMap = null;
 		
 		@BeforeStep
-		public void beforeStep(final StepExecution stepExecution) throws GdprException {
+		public void beforeStep(final StepExecution stepExecution) throws GdprException{
 			String CURRENT_METHOD = "beforeStep";		
 			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Job Before Step : "+LocalTime.now());
 			Boolean exceptionOccured = false;
 			String reOrganizeData = CURRENT_CLASS +":::"+CURRENT_METHOD+"::";
 			String errorDetails = "";
-			
-			try {
-				
-				mapCategory = gdprInputDaoImpl.fetchCategoryDetails();
-				mapFieldCategory = gdprInputDaoImpl.getMapFieldCategory();
-				//mapProcessedDate = gdprInputDaoImpl.getMapProcessedDate();				
-				
+						
+			try {				
 				JobParameters jobParameters = stepExecution.getJobParameters();
 				runId	= jobParameters.getLong(GlobalConstants.JOB_INPUT_RUN_ID);
 				long currentRun 	= jobParameters.getLong(GlobalConstants.JOB_INPUT_JOB_ID);
 				String countryCode = jobParameters.getString(GlobalConstants.JOB_INPUT_COUNTRY_CODE);
 				moduleStartDateTime = jobParameters.getDate(GlobalConstants.JOB_INPUT_START_DATE);
-			
+				
+				mapCategory = gdprInputDaoImpl.fetchCategoryDetails();
+				mapFieldCategory = gdprInputDaoImpl.getMapFieldCategory();
 			} catch (Exception exception) {
 				exceptionOccured = true;
-				reOrganizeData  = reOrganizeData + "Facing issues in before step. ";
-				System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + reOrganizeData);
-				//exception.printStackTrace();
-				StackTraceElement[] stktrace = exception.getStackTrace(); 
-				for(int i =0; i< stktrace.length; i++)
-					errorDetails = errorDetails+stktrace.toString();
-				System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + errorDetails);
+				reOrganizeData  = reOrganizeData + exception.getMessage() ;				
+				errorDetails = Arrays.toString(exception.getStackTrace());
 			}
 			try {
 				if(exceptionOccured){
 					RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
-							GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
+							GlobalConstants.SUB_MODULE_REORGANIZE_DATA, GlobalConstants.STATUS_FAILURE, moduleStartDateTime,  
 							new Date(), reOrganizeData, errorDetails);
 					moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 					throw new GdprException(reOrganizeData, errorDetails);
@@ -204,7 +194,7 @@ public class ReOrganizeInputBatchConfig {
 		}
 				
 		@Override
-		public List<GdprDepersonalizationOutput> process(GdprDepersonalizationInput gdprDepersonalizationInput) throws GdprException {
+		public List<GdprDepersonalizationOutput> process(GdprDepersonalizationInput gdprDepersonalizationInput) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 			String CURRENT_METHOD = "process";		
 			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: runId "+runId);
@@ -213,129 +203,44 @@ public class ReOrganizeInputBatchConfig {
 			List<GdprDepersonalizationOutput> lstGdprDepersonalizationOutput = new ArrayList<GdprDepersonalizationOutput>();
 			String errorDetails = "";
 			
-			try{
-				if(mapCategory == null)	
-					mapCategory = gdprInputDaoImpl.fetchCategoryDetails();
-				if(mapFieldCategory == null)
-					mapFieldCategory = gdprInputDaoImpl.getMapFieldCategory();
-				//if(mapProcessedDate == null)
-					//mapProcessedDate = gdprInputDaoImpl.getMapProcessedDate();
-				List<String> fieldCategoryList = new ArrayList<String>(mapFieldCategory.keySet());				
-				for(String fieldCategory : fieldCategoryList){					
-					Field field = GdprDepersonalizationInput.class.getDeclaredField(fieldCategory);
-					String fieldValue = (String) field.get(gdprDepersonalizationInput);
-					//Date processedDate = (Date) field.get(arg0)
-					//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: fieldCategory : fieldValue "+fieldCategory+" : "+fieldValue);
-					if(GlobalConstants.STATUS_CLEARED.equalsIgnoreCase(fieldValue)){
-						GdprDepersonalizationOutput gdprDepersonalizationOutput = new GdprDepersonalizationOutput(runId,
-							gdprDepersonalizationInput.getCandidate(), Integer.parseInt(mapFieldCategory.get(fieldCategory)), 
-							gdprDepersonalizationInput.getCountryCode(), GlobalConstants.STATUS_CLEARED, 
-							GlobalConstants.STATUS_SCHEDULED);
-						lstGdprDepersonalizationOutput.add(gdprDepersonalizationOutput);
-					}
+			if(mapCategory == null)	
+				mapCategory = gdprInputDaoImpl.fetchCategoryDetails();
+			if(mapFieldCategory == null)
+				mapFieldCategory = gdprInputDaoImpl.getMapFieldCategory();
+			List<String> fieldCategoryList = new ArrayList<String>(mapFieldCategory.keySet());				
+			for(String fieldCategory : fieldCategoryList){					
+				Field field = GdprDepersonalizationInput.class.getDeclaredField(fieldCategory);
+				String fieldValue = (String) field.get(gdprDepersonalizationInput);
+				if(GlobalConstants.STATUS_CLEARED.equalsIgnoreCase(fieldValue)){
+					GdprDepersonalizationOutput gdprDepersonalizationOutput = new GdprDepersonalizationOutput(runId,
+						gdprDepersonalizationInput.getCandidate(), Integer.parseInt(mapFieldCategory.get(fieldCategory)), 
+						gdprDepersonalizationInput.getCountryCode(), GlobalConstants.STATUS_CLEARED, 
+						GlobalConstants.STATUS_SCHEDULED);
+					lstGdprDepersonalizationOutput.add(gdprDepersonalizationOutput);
 				}
-			} catch (Exception exception) {
-				exceptionOccured = true;
-				reOrganizeData  = reOrganizeData + "Facing issues while processing data. ";
-				System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + reOrganizeData);
-				exception.printStackTrace();
-				errorDetails = exception.getStackTrace().toString();				
 			}
-			try {
-				if(exceptionOccured) {
-					RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
-							GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
-							new Date(), reOrganizeData, errorDetails);
-					moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-					throw new GdprException(reOrganizeData, errorDetails);
-				}
-			} catch(GdprException exception) {
-				reOrganizeData = reOrganizeData + GlobalConstants.ERR_MODULE_MGMT_INSERT;
-				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeData);
-				errorDetails = exception.getExceptionDetail();
-				throw new GdprException(reOrganizeData, errorDetails); 
-			}
-			try {
-				hvhOutputDaoImpl.batchInsertGdprDepersonalizationOutput(lstGdprDepersonalizationOutput);
-			} catch (Exception exception) {
-				exceptionOccured = true;
-				reOrganizeData  = reOrganizeData + "Facing issues while writing data into GDPR_Depersonalization table. ";
-				System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + reOrganizeData);
-				exception.printStackTrace();
-				errorDetails = errorDetails + exception.getStackTrace().toString(); 
-			}
-			try {
-				if(exceptionOccured){
-					RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
-							GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
-							new Date(), reOrganizeData, errorDetails);
-					moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-					throw new GdprException(reOrganizeData, errorDetails);
-				}
-			} catch(GdprException exception) {
-				reOrganizeData = reOrganizeData + GlobalConstants.ERR_MODULE_MGMT_INSERT;
-				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeData);
-				errorDetails = errorDetails + exception.getExceptionDetail();
-				throw new GdprException(reOrganizeData, errorDetails); 
-			}
+			hvhOutputDaoImpl.batchInsertGdprDepersonalizationOutput(lstGdprDepersonalizationOutput);
 			return lstGdprDepersonalizationOutput;
 		}
 	}
 				
 	@Bean
-	public Step reorganizeInputStep() throws GdprException {
+	public Step reorganizeInputStep() {
 		String CURRENT_METHOD = "reorganizeInputStep";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: runId "+runId);
 		
 		Step step = null;
-		Boolean exceptionOccured = false;
-		String reOrganizeData = CURRENT_CLASS +":::"+CURRENT_METHOD+"::";
-		String errorDetails = "";
-
-		try {
-			step = stepBuilderFactory.get("reorganizeInputStep")
-				.<GdprDepersonalizationInput, List<GdprDepersonalizationOutput>> chunk(SqlQueriesConstant.BATCH_ROW_COUNT)
-				.reader(gdprDepersonalizationDBreader(0, "", new Date()))
-				.processor(new ReorganizeDataProcessor())
-				//.writer(new ReorganizeOutputWriter())
-				.build();
-		} catch(GdprException exception) {
-			reOrganizeData = reOrganizeData + exception.getExceptionMessage();
-			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeData);
-			errorDetails = errorDetails + exception.getExceptionDetail();
-		} catch (Exception exception) {
-			exceptionOccured = true;
-			reOrganizeData  = reOrganizeData + GlobalConstants.ERR_GDPR_DEPERSONALIZATION_LOAD ;
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + reOrganizeData);
-			exception.printStackTrace();
-			errorDetails = exception.getStackTrace().toString();
-			/*System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getMessage" + exception.getMessage());
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getLocalizedMessage" + exception.getLocalizedMessage());
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getStackTrace" + exception.getStackTrace());
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: toString" + exception.toString());
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getClass" + exception.getClass());
-			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: getCause" + exception.getCause());*/
-		}		
-		try {
-			if(exceptionOccured){
-				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
-						GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, GlobalConstants.STATUS_FAILURE, moduleStartDateTime, 
-						new Date(), reOrganizeData, errorDetails);
-				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				throw new GdprException(reOrganizeData, errorDetails);
-			}
-		} catch(GdprException exception) {
-			reOrganizeData = reOrganizeData + exception.getExceptionMessage();
-			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeData);
-			errorDetails = errorDetails + exception.getExceptionDetail();
-			throw new GdprException(reOrganizeData, errorDetails); 
-		}
+		step = stepBuilderFactory.get("reorganizeInputStep")
+			.<GdprDepersonalizationInput, List<GdprDepersonalizationOutput>> chunk(SqlQueriesConstant.BATCH_ROW_COUNT)
+			.reader(gdprDepersonalizationDBreader(0, "", new Date()))
+			.processor(new ReorganizeDataProcessor())
+			.build();
 		return step;		
 	}
 	
 	@Bean
-	public Job processreorganizeInputJob() throws GdprException {
+	public Job processreorganizeInputJob() {
 		String CURRENT_METHOD = "processreorganizeInputJob";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Before Batch Process : "+LocalTime.now());
@@ -345,13 +250,13 @@ public class ReOrganizeInputBatchConfig {
 		String reOrganizeData = CURRENT_CLASS +":::"+CURRENT_METHOD+"::";
 		String errorDetails = "";
 		
-		try{
+		//try{
 			job = jobBuilderFactory.get(CURRENT_METHOD)
 					.incrementer(new RunIdIncrementer()).listener(reorganizeInputlistener(GlobalConstants.JOB_REORGANIZE_INPUT_PROCESSOR))										
 					.flow(reorganizeInputStep())
 					.end()
 					.build();
-		} catch(GdprException exception) {
+		/*} catch(GdprException exception) {
 			reOrganizeData = reOrganizeData + exception.getExceptionMessage();
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeData);
 			errorDetails = errorDetails + exception.getExceptionDetail();
@@ -380,7 +285,7 @@ public class ReOrganizeInputBatchConfig {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+reOrganizeData);
 			errorDetails = errorDetails + exception.getExceptionDetail();
 			throw new GdprException(reOrganizeData, errorDetails); 
-		}
+		}*/
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: After Batch Process : "+LocalTime.now());
 		return job;
 	}

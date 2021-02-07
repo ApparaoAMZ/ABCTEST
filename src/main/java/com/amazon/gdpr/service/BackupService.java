@@ -149,6 +149,7 @@ public class BackupService {
 				JobParametersBuilder jobParameterBuilder = new JobParametersBuilder();
 				jobParameterBuilder.addLong(GlobalConstants.JOB_BACKUP_SERVICE_INPUT_RUNID, runId);
 				jobParameterBuilder.addLong(GlobalConstants.JOB_BACKUP_SERVICE_INPUT_JOBID, new Date().getTime());
+				jobParameterBuilder.addDate(GlobalConstants.JOB_INPUT_START_DATE, new Date());
 
 				System.out.println(MODULE_DATABACKUP + " ::: " + CURRENT_METHOD + " :: JobParameters set ");
 				JobParameters jobParameters = jobParameterBuilder.toJobParameters();

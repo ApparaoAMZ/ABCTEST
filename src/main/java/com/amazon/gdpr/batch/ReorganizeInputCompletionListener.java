@@ -1,5 +1,6 @@
 package com.amazon.gdpr.batch;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class ReorganizeInputCompletionListener extends JobExecutionListenerSuppo
 		String CURRENT_METHOD = "afterJob";		
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
 		
-		String reOrganizeData = CURRENT_CLASS+" "+CURRENT_METHOD+" ";
+		String reOrganizeData = CURRENT_CLASS +":::"+CURRENT_METHOD+"::";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+jobRelatedName+ " BATCH JOB COMPLETED SUCCESSFULLY");
 		JobParameters jobParameters = jobExecution.getJobParameters();
 		
@@ -48,13 +49,9 @@ public class ReorganizeInputCompletionListener extends JobExecutionListenerSuppo
 		List<Throwable> lstThrowable = jobExecution.getAllFailureExceptions();
 		if(lstThrowable != null && lstThrowable.size() > 0) {
 			for(Throwable throwable : lstThrowable) {
-				failureStatus = failureStatus + throwable.getCause();
-				reOrganizeData = reOrganizeData + throwable.getMessage();
-				
-				System.out.println("getLocalizedMessage"+throwable.getLocalizedMessage());
-				System.out.println("getMessage"+throwable.getMessage());
-				System.out.println("getCause"+throwable.getCause());
-				System.out.println("getStackTrace"+throwable.getStackTrace());
+				reOrganizeData = reOrganizeData + " Error Message : "+throwable.getMessage() +" Localized Message "+throwable.getLocalizedMessage() +
+						" Error Cause : "+throwable.getCause()+" Class "+throwable.getClass();				
+				failureStatus = failureStatus + Arrays.toString(throwable.getStackTrace());				
 			}				
 		} else
 			reOrganizeData = reOrganizeData + GlobalConstants.MSG_REORGANIZEINPUT + countryCode+". ";

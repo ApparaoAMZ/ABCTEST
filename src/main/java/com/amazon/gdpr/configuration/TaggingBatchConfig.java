@@ -90,7 +90,7 @@ public class TaggingBatchConfig {
 	@StepScope
 	public JdbcCursorItemReader<ArchiveTable> archiveTableReader(@Value("#{jobParameters[RunId]}") long runId,
 			@Value("#{jobParameters[RunSummaryId]}") long runSummaryId, 
-			@Value("#{jobParameters[StartDate]}") Date moduleStartDateTime) throws GdprException {
+			@Value("#{jobParameters[StartDate]}") Date moduleStartDateTime) {
 				
 		String CURRENT_METHOD = "archiveTableReader";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
@@ -102,9 +102,9 @@ public class TaggingBatchConfig {
 		RunSummaryMgmt runSummaryMgmt = null;
 		String errorDetails = "";
 
-		try {
+		//try {
 			runSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId, runSummaryId);
-		} catch (Exception exception) {
+		/*} catch (Exception exception) {
 			exceptionOccured = true;
 			taggingDataStatus  = "Facing issues in reading runSummaryDetail for run - "+runId+" for run summary id -"
 						+runSummaryId;
@@ -127,7 +127,7 @@ public class TaggingBatchConfig {
 			errorDetails = errorDetails+exception.getStackTrace().toString();
 			throw new GdprException(taggingDataStatus, errorDetails); 
 		}
-		try {
+		try {*/
 			if(runSummaryMgmt != null) {
 				String tagQuery = runSummaryMgmt.getTaggedQueryLoad();
 				reader = new JdbcCursorItemReader<ArchiveTable>();
@@ -135,9 +135,9 @@ public class TaggingBatchConfig {
 				reader.setSql(tagQuery);
 				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: sqlQuery "+tagQuery);
 				reader.setRowMapper(new ArchiveTableRowMapper(runId));
-				taggingDataStatus = taggingDataStatus + "Reading data eligible to be tagged for Run Summary Id "+runSummaryMgmt.getSummaryId();
+				//taggingDataStatus = taggingDataStatus + "Reading data eligible to be tagged for Run Summary Id "+runSummaryMgmt.getSummaryId();
 			}
-		} catch (Exception exception) {
+		/*} catch (Exception exception) {
 			exceptionOccured = true;
 			taggingDataStatus  = "Facing issues in reading Archival table - "+runSummaryMgmt.getImpactTableName()+" for country code - "
 						+runSummaryMgmt.getCountryCode()+" for category - "+runSummaryMgmt.getCategoryId();
@@ -159,7 +159,7 @@ public class TaggingBatchConfig {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+taggingDataStatus);
 			errorDetails = errorDetails+exception.getStackTrace().toString();
 			throw new GdprException(taggingDataStatus, errorDetails); 
-		}
+		}*/
 		return reader;
 	}
 	
@@ -186,13 +186,13 @@ public class TaggingBatchConfig {
 		//private Map<String, String> mapTableIdToName = null;
 		
 		@BeforeStep
-		public void beforeStep(final StepExecution stepExecution) throws GdprException {
+		public void beforeStep(final StepExecution stepExecution) {
 			String CURRENT_METHOD = "beforeStep";
 			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Job Before Step : "+LocalTime.now());
 			
-			long currentRun;
-			
+			long currentRun = 0;
+
 			JobParameters jobParameters = stepExecution.getJobParameters();
 			runId	= jobParameters.getLong(GlobalConstants.JOB_INPUT_RUN_ID);			
 			currentRun 	= jobParameters.getLong(GlobalConstants.JOB_INPUT_JOB_ID);
@@ -208,7 +208,7 @@ public class TaggingBatchConfig {
 		}
 		
 		@Override
-		public ArchiveTable process(ArchiveTable arg0) throws Exception {
+		public ArchiveTable process(ArchiveTable arg0) {
 			String CURRENT_METHOD = "process";		
 			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");		
 			//arg0.setTableName(mapTableIdToName.get(arg0.getTableId()));
@@ -225,7 +225,7 @@ public class TaggingBatchConfig {
 		}
 					
 		@Override
-		public void write(List<? extends ArchiveTable> lstArchiveTable) throws GdprException {
+		public void write(List<? extends ArchiveTable> lstArchiveTable) {
 			String CURRENT_METHOD = "write";
 			Boolean exceptionOccured = false;
 			String tagArchivalDataStatus = "";
@@ -235,7 +235,7 @@ public class TaggingBatchConfig {
 			String tableName = "";
 			
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
-			try {
+			//try {
 				if(lstArchiveTable != null && lstArchiveTable.size() > 0){
 					ArchiveTable archiveTable0 = lstArchiveTable.get(0);
 					tableName = archiveTable0.getTableName();
@@ -248,7 +248,7 @@ public class TaggingBatchConfig {
 							+countryCode+" for category - "+categoryId;
 				}
 				
-			} catch (Exception exception) {
+			/*} catch (Exception exception) {
 				exceptionOccured = true;
 				tagArchivalDataStatus  = "Facing issues while writing data into Tag table - "+tableName+" for country code -"
 						+countryCode+" for category - "+categoryId;
@@ -270,12 +270,12 @@ public class TaggingBatchConfig {
 				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+tagArchivalDataStatus);
 				errorDetails = errorDetails + exception.getStackTrace().toString();
 				throw new GdprException(tagArchivalDataStatus, errorDetails); 
-			}
+			}*/
 		}
 	}
 	
 	@Bean
-	public Step taggingStep() throws GdprException {
+	public Step taggingStep() {
 		String CURRENT_METHOD = "taggingStep";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: runId "+runId);
@@ -286,14 +286,14 @@ public class TaggingBatchConfig {
 		String taggingStatus = "";
 		String errorDetails = "";
 
-		try {			
+		//try {			
 			step = stepBuilderFactory.get(CURRENT_METHOD)
 				.<ArchiveTable, ArchiveTable> chunk(SqlQueriesConstant.BATCH_ROW_COUNT)
 				.reader(archiveTableReader(0, 0, new Date()))
 				.processor(new TaggingProcessor())
 				.writer(new TagInputWriter<Object>(new Date()))
 				.build();
-		} catch (Exception exception) {
+		/*} catch (Exception exception) {
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: " + GlobalConstants.ERR_TAGGING_LOAD);
 			exceptionOccured = true;
 			exception.printStackTrace();
@@ -314,12 +314,12 @@ public class TaggingBatchConfig {
 			taggingStatus = taggingStatus + exception.getExceptionMessage();
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+taggingStatus);
 			throw new GdprException(taggingStatus, errorDetails); 
-		}
+		}*/
 		return step;
 	}
 		
 	@Bean
-	public Job processTaggingJob() throws GdprException{
+	public Job processTaggingJob() {
 		String CURRENT_METHOD = "processTaggingJob";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method. ");
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Before Batch Process : "+LocalTime.now());
@@ -330,13 +330,13 @@ public class TaggingBatchConfig {
 		String taggingDataStatus = "";
 		String errorDetails = "";
 		
-		try {
+		//try {
 			job = jobBuilderFactory.get(CURRENT_METHOD)
 					.incrementer(new RunIdIncrementer()).listener(taggingListener(GlobalConstants.JOB_TAGGING))										
 					.flow(taggingStep())
 					.end()
 					.build();
-		} catch(Exception exception) {
+		/*} catch(Exception exception) {
 			exceptionOccured = true;
 			taggingDataStatus = GlobalConstants.ERR_TAG_JOB_PROCESS;
 			exception.printStackTrace();
@@ -356,7 +356,7 @@ public class TaggingBatchConfig {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+taggingDataStatus);
 			errorDetails = errorDetails + exception.getStackTrace().toString();
 			throw new GdprException(taggingDataStatus, errorDetails); 
-		}
+		}*/
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: After Batch Process : "+LocalTime.now());
 		return job;
 	}

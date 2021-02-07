@@ -5,7 +5,7 @@ package com.amazon.gdpr.util;
  ****************************************************************************************/
 public class SqlQueriesConstant {
 	
-	public static int BATCH_ROW_COUNT = 50;
+	public static int BATCH_ROW_COUNT = 10000;
 	
 	public static String RUNMGMT_LAST_RUN 	= "SELECT RUN_ID, RUN_STATUS FROM GDPR.RUN_MGMT WHERE RUN_ID > 0 ORDER BY RUN_ID DESC LIMIT 1";
 	
@@ -31,7 +31,7 @@ public class SqlQueriesConstant {
 	
 	//public static String CATEGORY_FETCH		= "SELECT CATEGORY_ID, CATEGORY_NAME, GDPR_CATEGORY_STATUS_FIELD, PROCESSED_DATE_FIELD, STATUS FROM "
 	public static String CATEGORY_FETCH		= "SELECT CATEGORY_ID, CATEGORY_NAME, GDPR_CATEGORY_STATUS_FIELD, STATUS FROM "
-			+ "GDPR.CATEGORY WHERE STATUS IN ('ACTIVE')1";
+			+ "GDPR.CATEGORY WHERE STATUS IN ('ACTIVE')";
 	
 	public static String IMPACT_TABLE_FETCH	= "SELECT IMPACT_TABLE_ID, IMPACT_TABLE_NAME, PARENT_TABLE_NAME, "
 			+ "IMPACT_TABLE_COLUMN, PARENT_TABLE_COLUMN FROM GDPR.IMPACT_TABLE ";

@@ -1,5 +1,6 @@
 package com.amazon.gdpr.batch;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -57,8 +58,9 @@ public class TaggingJobCompletionListener extends JobExecutionListenerSupport {
 		List<Throwable> lstThrowable = jobExecution.getAllFailureExceptions();
 		if(lstThrowable != null && lstThrowable.size() > 0) {
 			for(Throwable throwable : lstThrowable) {
-				errorMessage = errorMessage + throwable.getCause(); 
-				taggingData = throwable.getMessage();
+				taggingData = taggingData + " Error Message : "+throwable.getMessage() +" Localized Message "+throwable.getLocalizedMessage() +
+						" Error Cause : "+throwable.getCause()+" Class "+throwable.getClass();				
+				errorMessage = errorMessage + Arrays.toString(throwable.getStackTrace());					
 			}	
 		} else{
 			taggingData = GlobalConstants.MSG_TAGGING_DATA + " for runId - "+runId+" for runSummaryId - "+ runSummaryId+". ";
@@ -72,7 +74,7 @@ public class TaggingJobCompletionListener extends JobExecutionListenerSupport {
 		} catch(Exception exception) {
 			exceptionOccurred = true;
 			taggingData = taggingData +GlobalConstants.ERR_TAGDATA_COUNT_UPDATE;
-			errorMessage = errorMessage + exception.getMessage();
+			errorMessage = errorMessage + Arrays.toString(exception.getStackTrace());
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Exception : "+exception.getMessage());
 		}
 		

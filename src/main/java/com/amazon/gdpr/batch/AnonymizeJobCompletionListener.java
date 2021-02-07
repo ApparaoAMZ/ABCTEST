@@ -1,5 +1,6 @@
 package com.amazon.gdpr.batch;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,8 +56,10 @@ public class AnonymizeJobCompletionListener extends JobExecutionListenerSupport 
 		List<Throwable> lstThrowable = jobExecution.getAllFailureExceptions();
 		if(lstThrowable != null && lstThrowable.size() > 0) {
 			for(Throwable throwable : lstThrowable) {
-				errorMessage = errorMessage + throwable.getCause(); 
-				anonymizeData = throwable.getMessage();
+				
+				anonymizeData = anonymizeData + " Error Message : "+throwable.getMessage() +" Localized Message "+throwable.getLocalizedMessage() +
+						" Error Cause : "+throwable.getCause()+" Class "+throwable.getClass();				
+				errorMessage = errorMessage + Arrays.toString(throwable.getStackTrace());					
 			}	
 		} else
 			anonymizeData = GlobalConstants.MSG_ANONYMIZE_DATA + "for runId - "+runId+"; runSummaryId - "+ runSummaryId+". ";
