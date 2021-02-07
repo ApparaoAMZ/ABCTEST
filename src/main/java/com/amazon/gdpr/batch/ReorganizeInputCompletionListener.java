@@ -51,7 +51,7 @@ public class ReorganizeInputCompletionListener extends JobExecutionListenerSuppo
 			for(Throwable throwable : lstThrowable) {
 				reOrganizeData = reOrganizeData + " Error Message : "+throwable.getMessage() +" Localized Message "+throwable.getLocalizedMessage() +
 						" Error Cause : "+throwable.getCause()+" Class "+throwable.getClass();				
-				failureStatus = failureStatus + Arrays.toString(throwable.getStackTrace());				
+				failureStatus = failureStatus + throwable.getMessage();				
 			}				
 		} else
 			reOrganizeData = reOrganizeData + GlobalConstants.MSG_REORGANIZEINPUT + countryCode+". ";
