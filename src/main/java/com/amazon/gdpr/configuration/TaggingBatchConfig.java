@@ -241,7 +241,7 @@ public class TaggingBatchConfig {
 					tableName = archiveTable0.getTableName();
 					categoryId = archiveTable0.getCategoryId();
 					countryCode = archiveTable0.getCountryCode();
-					String sqlQuery = "INSERT INTO TAG."+archiveTable0.getTableName()+"(RUN_ID, ID, CATEGORY_ID, COUNTRY_CODE, STATUS) "
+					String sqlQuery = "INSERT INTO TAG.As"+archiveTable0.getTableName()+"(RUN_ID, ID, CATEGORY_ID, COUNTRY_CODE, STATUS) "
 							+ " VALUES (?,?,?, ?,?)";	
 					backupServiceDaoImpl.tagArchivalTables(lstArchiveTable, sqlQuery);	
 					tagArchivalDataStatus = "Tagging updated for table "+tableName+" for country code -"
