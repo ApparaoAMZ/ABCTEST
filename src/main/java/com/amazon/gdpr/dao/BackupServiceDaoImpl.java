@@ -99,7 +99,7 @@ public class BackupServiceDaoImpl {
 	    String CURRENT_METHOD = "anonymizeArchivalTables";		
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
 		
-		int[] updateCounts  = jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() { 						
+		int[] updateCounts  = jdbcTemplate.batchUpdate(sqlQuery+1, new BatchPreparedStatementSetter() { 						
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				String CURRENT_METHOD = "setValues";		
 				//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
