@@ -23,7 +23,7 @@ public class BackupCountListener implements ChunkListener {
 		long currentRun 	= jobParameters.getLong(GlobalConstants.JOB_INPUT_JOB_ID);
     	long runSummaryId = jobParameters.getLong(GlobalConstants.JOB_INPUT_RUN_SUMMARY_ID);
     	
-    	System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Before Chunk : runId : "+runId+" currentRun : "
+    	System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Before Chunk Backup : runId : "+runId+" currentRun : "
     			+currentRun+" runSummaryId : "+runSummaryId);
     }
  
@@ -38,7 +38,7 @@ public class BackupCountListener implements ChunkListener {
     	    	
     	int backupCount = context.getStepContext().getStepExecution().getWriteCount(); 
     	runSummaryDaoImpl.backupCountUpdate(backupCount, runSummaryId);
-    	System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: After Chunk : runId : "+runId+" currentRun : "
+    	System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: After Chunk Backup : runId : "+runId+" currentRun : "
     			+currentRun+" runSummaryId : "+runSummaryId+" Write Count : "+backupCount);        
     }
      

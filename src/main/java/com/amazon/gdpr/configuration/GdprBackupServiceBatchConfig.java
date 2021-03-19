@@ -296,7 +296,7 @@ public class GdprBackupServiceBatchConfig {
 		String errorDetails = "";
 		
 			step = stepBuilderFactory.get("gdprBackupServiceStep")
-					.<BackupServiceData, BackupServiceData>chunk(1000)
+					.<BackupServiceData, BackupServiceData>chunk(100)
 					.reader(backupServiceReader(0,0, new Date())).processor(new GdprBackupServiceProcessor())
 					.writer(new BackupServiceOutputWriter<Object>(new Date(), 0))
 					.listener(bkplistener()).build();
