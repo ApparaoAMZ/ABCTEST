@@ -45,6 +45,7 @@ public class BackupJobCompletionListener extends JobExecutionListenerSupport {
 		JobParameters jobParameters = jobExecution.getJobParameters();
 		
 		long runId = jobParameters.getLong(GlobalConstants.JOB_REORGANIZE_INPUT_RUNID);
+		long runSummaryId = jobParameters.getLong(GlobalConstants.JOB_INPUT_RUN_SUMMARY_ID);
 		moduleStartDateTime = jobExecution.getStartTime();
 		
 		String backUpData = "";
@@ -59,7 +60,7 @@ public class BackupJobCompletionListener extends JobExecutionListenerSupport {
 				errorMessage = errorMessage + Arrays.toString(throwable.getStackTrace());				
 			}	
 		} else
-			backUpData = GlobalConstants.MSG_BACKUPSERVICE_INPUT + " for runId - "+runId+". ";
+			backUpData = GlobalConstants.MSG_BACKUPSERVICE_INPUT + " for runId - "+runId+"  for runSummaryId - "+runSummaryId;
 				
 		try {
 			String moduleStatus = (jobExecution.getStatus() == BatchStatus.FAILED) ? GlobalConstants.STATUS_FAILURE : 
@@ -69,7 +70,7 @@ public class BackupJobCompletionListener extends JobExecutionListenerSupport {
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 			//runMgmtDaoImpl.updateRunComments(runId, backUpData);
 			if(GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(moduleStatus)) {
-				tagDataProcessor.taggingInitialize(runId);
+				//tagDataProcessor.taggingInitialize(runId);
 			}
 		} catch(GdprException exception) {
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Exception : "+exception.getExceptionMessage());

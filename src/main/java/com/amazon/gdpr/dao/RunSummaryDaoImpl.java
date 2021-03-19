@@ -201,5 +201,15 @@ public class RunSummaryDaoImpl {
 		
 		return jdbcTemplate.update(SqlQueriesConstant.RUN_SUMMARY_MGMT_UPDATE, new Object[]{depersonalizationCount, runSummaryId});		
 	}
-	
+	/**
+	 * This method  values updates depersonalization count value
+	 * @param runSummaryId
+	 * @return
+	 */	
+	public int backupCountUpdate(int backupCount, long runSummaryId) {
+		String CURRENT_METHOD = "backupCountUpdate";		
+		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
+		
+		return jdbcTemplate.update(SqlQueriesConstant.RUN_SUMMARY_MGMT_BKP_UPDATE, new Object[]{backupCount, runSummaryId});		
+	}
 }

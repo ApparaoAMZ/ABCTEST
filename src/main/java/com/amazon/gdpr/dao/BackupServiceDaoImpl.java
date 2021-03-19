@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.amazon.gdpr.model.BackupServiceData;
 import com.amazon.gdpr.model.BackupServiceOutput;
 import com.amazon.gdpr.model.archive.AnonymizeTable;
 import com.amazon.gdpr.model.archive.ArchiveTable;
@@ -36,6 +36,28 @@ public class BackupServiceDaoImpl {
 	 * @return data insterted count
 	 */
 
+	
+
+	@Transactional
+	public void backupInsertTables(List<? extends BackupServiceData> lstbackupserviceTable, String sqlQuery) {
+	    String CURRENT_METHOD = "backupInsertTables";		
+		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
+		
+		System.out.println("Backup Insert Data:::"+sqlQuery);
+		
+		int[] updateCounts  = jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() { 						
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				String CURRENT_METHOD = "setValues";		
+				//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
+				BackupServiceData bkpserviceTable = (BackupServiceData) lstbackupserviceTable.get(i);
+				ps.setLong(1, bkpserviceTable.getRecId());
+			}
+			public int getBatchSize() {
+				return lstbackupserviceTable.size();
+			}
+		});
+	}
+	
 	@Transactional
 	public int insertBackupTable(String backupDataInsertQuery) {
 		String CURRENT_METHOD = "insertBackupTable";
@@ -45,6 +67,18 @@ public class BackupServiceDaoImpl {
 		return ainsertedCount;
 	}
 	
+	
+	/**
+	 * This method  values updates Backup count value
+	 * @param sqlQuery
+	 * @return
+	 */	
+	public int updateSummaryTableData(String sqlQuery) {
+		String CURRENT_METHOD = "updateSummaryTableData";		
+		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
+		
+		return jdbcTemplate.update(sqlQuery);		
+	}
 	@Transactional
 	public void updateSummaryTable(List<? extends BackupServiceOutput> lstBackupServiceOutput) {
 		

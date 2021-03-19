@@ -22,12 +22,15 @@ import org.springframework.stereotype.Service;
 import com.amazon.gdpr.dao.GdprInputDaoImpl;
 import com.amazon.gdpr.dao.GdprOutputDaoImpl;
 import com.amazon.gdpr.dao.RunMgmtDaoImpl;
+import com.amazon.gdpr.dao.RunSummaryDaoImpl;
 import com.amazon.gdpr.model.gdpr.output.RunModuleMgmt;
 import com.amazon.gdpr.model.gdpr.output.RunSummaryMgmt;
 import com.amazon.gdpr.processor.ModuleMgmtProcessor;
 import com.amazon.gdpr.processor.RunMgmtProcessor;
+import com.amazon.gdpr.processor.TagDataProcessor;
 import com.amazon.gdpr.util.GdprException;
 import com.amazon.gdpr.util.GlobalConstants;
+import com.amazon.gdpr.util.SqlQueriesConstant;
 
 /****************************************************************************************
  * This Service performs the Depersonalization activity on the Heroku Backup
@@ -41,6 +44,9 @@ public class BackupService {
 
 	@Autowired
 	JobLauncher jobLauncher;
+	
+	@Autowired
+	TagDataProcessor tagDataProcessor;
 
 	@Autowired
 	Job processGdprBackupServiceJob;
@@ -58,15 +64,18 @@ public class BackupService {
 	GdprOutputDaoImpl gdprOutputDaoImpl;
 	
 	@Autowired
+	RunSummaryDaoImpl runSummaryDaoImpl;
+	
+	@Autowired
 	RunMgmtDaoImpl runMgmtDaoImpl;
 	
-	public String backupServiceInitiate(long runId) {
+	public void backupServiceInitiate(long runId) throws GdprException {
 		String CURRENT_METHOD = "backupServiceInitiate";
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
 			
 		BackupJobThread bkpJobThread = new BackupJobThread(runId);
 		bkpJobThread.start();
-		return GlobalConstants.MSG_BACKUPSERVICE_JOB;
+		//return GlobalConstants.MSG_BACKUPSERVICE_JOB;
 	}
 
 	
@@ -85,19 +94,28 @@ public class BackupService {
 			Date moduleStartDateTime = null;			
 			String moduleStatus="";
 			String errorDetails = "";
+			String prevJobModuleStatus = "";
+
 			
 			try {
 				moduleStartDateTime = new Date();
 
-				JobParametersBuilder jobParameterBuilder = new JobParametersBuilder();
-				jobParameterBuilder.addLong(GlobalConstants.JOB_BACKUP_SERVICE_INPUT_RUNID, runId);
-				jobParameterBuilder.addLong(GlobalConstants.JOB_BACKUP_SERVICE_INPUT_JOBID, new Date().getTime());
-				jobParameterBuilder.addDate(GlobalConstants.JOB_INPUT_START_DATE, new Date());
-
-				System.out.println(MODULE_DATABACKUP + " ::: " + CURRENT_METHOD + " :: JobParameters set ");
-				JobParameters jobParameters = jobParameterBuilder.toJobParameters();
-
-				jobLauncher.run(processGdprBackupServiceJob, jobParameters);
+				String query = SqlQueriesConstant.RUN_SUMMARY_MGMT_BKP_FETCH;
+				List<RunSummaryMgmt> lstRunSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId, query);
+				if(lstRunSummaryMgmt != null) {
+					for(RunSummaryMgmt runSummaryMgmt : lstRunSummaryMgmt) { 
+						JobParametersBuilder jobParameterBuilder= new JobParametersBuilder();
+						jobParameterBuilder.addLong(GlobalConstants.JOB_INPUT_RUN_ID, runId);						
+						jobParameterBuilder.addLong(GlobalConstants.JOB_INPUT_JOB_ID, new Date().getTime());
+						jobParameterBuilder.addLong(GlobalConstants.JOB_INPUT_RUN_SUMMARY_ID, runSummaryMgmt.getSummaryId());
+						jobParameterBuilder.addDate(GlobalConstants.JOB_INPUT_START_DATE, new Date());
+						
+						System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: JobParameters set ");
+						JobParameters jobParameters = jobParameterBuilder.toJobParameters();
+						jobLauncher.run(processGdprBackupServiceJob, jobParameters);				
+					}
+				}
+				
 				backupServiceStatus = GlobalConstants.MSG_BACKUPSERVICE_JOB;
 			} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
 					| JobParametersInvalidException exception) {
@@ -108,12 +126,19 @@ public class BackupService {
 				errorDetails = exception.getStackTrace().toString();
 			}
 			try {
-				moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE
-						: GlobalConstants.STATUS_SUCCESS;
+				prevJobModuleStatus = moduleMgmtProcessor.prevJobModuleStatus(runId);
+				
+				//moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE
+						// GlobalConstants.STATUS_SUCCESS;
+				moduleStatus = (exceptionOccured || prevJobModuleStatus.equalsIgnoreCase(GlobalConstants.STATUS_FAILURE)) ? 
+						GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
 				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_BACKUPSERVICE,
 						GlobalConstants.SUB_MODULE_BACKUPSERVICE_JOB_INITIALIZE, moduleStatus, moduleStartDateTime,
 						new Date(), backupServiceStatus, errorDetails);
-				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);				
+				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);	
+				if((! exceptionOccured) && GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(prevJobModuleStatus)){
+					tagDataProcessor.taggingInitialize(runId);
+				}
 			} catch (GdprException exception) {
 				exceptionOccured = true;
 				backupServiceStatus = backupServiceStatus + exception.getExceptionMessage();

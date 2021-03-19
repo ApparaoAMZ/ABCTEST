@@ -84,6 +84,7 @@ public class RunMgmtProcessor {
 					initializeRunStatus = GlobalConstants.MSG_OLD_RUN_FETCHED + runId+". "+pastRunStatus;
 				}
 			} 
+			oldRun=false;
 			if(! oldRun) {
 				runId = initiateNewRun(runName);
 				subModule = GlobalConstants.SUB_MODULE_RUN_INITIALIZE;
