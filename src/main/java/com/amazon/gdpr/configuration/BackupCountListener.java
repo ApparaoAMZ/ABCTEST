@@ -37,6 +37,7 @@ public class BackupCountListener implements ChunkListener {
     	long runSummaryId = jobParameters.getLong(GlobalConstants.JOB_INPUT_RUN_SUMMARY_ID);
     	    	
     	int backupCount = context.getStepContext().getStepExecution().getWriteCount(); 
+    	System.out.println("backupCount::::::"+backupCount);
     	runSummaryDaoImpl.backupCountUpdate(backupCount, runSummaryId);
     	System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: After Chunk Backup : runId : "+runId+" currentRun : "
     			+currentRun+" runSummaryId : "+runSummaryId+" Write Count : "+backupCount);        
