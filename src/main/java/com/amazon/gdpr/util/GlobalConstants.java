@@ -13,11 +13,14 @@ public class GlobalConstants {
 	public static String STATUS_SCHEDULED		= "SCHEDULED";
 	public static String STATUS_CLEARED			= "CLEARED";
 	public static String STATUS_NODATA			= "NO DATA";
+	public static String STATUS_RERUN			= "RE-RUN";
 	
 	// Modules 
 	public static String MODULE_PAGELOAD						= "Page Load Module";
 	public static String MODULE_INITIALIZATION 					= "Initialization Module";
 	public static String SUB_MODULE_RUN_INITIALIZE				= "Run Initialize Sub Module";
+	public static String SUB_MODULE_RERUN_INITIALIZE			= "Re-Run Initialize Sub Module";
+	public static String SUB_MODULE_RUN_ANONYMIZE_INITIALIZE	= "Anonymize Initiatlize Sub Module";
 	public static String SUB_MODULE_ANONYMIZE_JOB_INITIALIZE	= "Anonymize Archival Job Sub Module";
 	public static String SUB_MODULE_BACKUP_TABLE_INITIALIZE		= "Backup Table Initialize Sub Module";
 	public static String SUB_MODULE_REORGANIZE_JOB_INITIALIZE 	= "ReOrganize Input Data Job Sub Module"; 
@@ -64,7 +67,7 @@ public class GlobalConstants {
 	public static String CLS_GDPRCMDLINEAPPLICATION = "GdprCmdLineApplication";
 	
 	public static String CLS_RUNMGMTPROCESSOR 		= "RunMgmtProcessor";
-	public static String CLS_ANONYMIZATIONPROCESSOR = "AnonymizationProcessor";
+	public static String CLS_ANONYMIZATIONPROCESSOR = "AnonymizationFileProcessor";
 	public static String CLS_GDPRDATAPROCESSOR		= "GdprDataProcessor";
 	public static String CLS_SUMMARYDATAPROCESSOR   = "SummaryDataProcessor";
 	public static String CLS_TAGQUERYPROCESSOR		= "TagQueryProcessor";			
@@ -103,10 +106,12 @@ public class GlobalConstants {
 	public static String CLS_CATEGORYROWMAPPER				= "CategoryRowMapper";
 	public static String CLS_IMPACTTABLEROWMAPPER			= "ImpactTableRowMapper";
 	public static String CLS_IMPACTFIELDROWMAPPER			= "ImpactFieldRowMapper";
+	public static String CLS_IMPACTFIELDANONYMIZAYIONROWMAPPER			= "ImpactFieldAnonymizationRowMapper";
 	public static String CLS_ANONYMIZATIONDETAILROwMAPPER 	= "AnonymizationDetailRowMapper";
 	public static String CLS_SUMMARYDATAROWMAPPER			= "SummaryDataRowMapper";
 	public static String CLS_COUNTRYROWMAPPER				= "CountryRowMapper";
 	public static String CLS_RUNMODULEMGMTROWMAPPER			= "RunModuleMgmtRowMapper";
+	public static String CLS_MODULEMGMTROWMAPPER			= "ModuleMgmtRowMapper";
 	public static String CLS_DATALOADROWMAPPER				= "DataLoadRowMapper";
 	public static String CLS_DATALOADDATEROWMAPPER			= "DataLoadDateRowMapper";
 	public static String CLS_RUNSUMMARYMGMT_ROWMAPPER 		= "RunSummaryMgmtRowMapper";
@@ -163,8 +168,19 @@ public class GlobalConstants {
 	public static String FILE_UPLOAD_SUCCESS	= "File uploaded successfully! ";
 	public static String FILE_SHEET_NAME		= "Sheet1";
 	
-	public static String DATE_DATATYPE 	= "Date";
+	public static String DATE_DATATYPE 	= "DATE";
+	public static String TIMESTAMP_DATATYPE = "TIMESTAMP";
 	public static String TEXT_DATATYPE	= "TEXT";
+	public static String VARCHAR_DATATYPE = "VARCHAR";
+	public static String FORMULA_DATATYPE = "FORMULA";
+	public static String ADDRESS_DATATYPE = "ADDRESS";
+	public static String BOOLEAN_DATATYPE = "BOOLEAN";	
+	public static String FLOAT_DATATYPE = "FLOAT";
+	public static String INTEGER_DATATYPE = "INT";
+	public static String OID_DATATYPE = "OID";
+	public static String SERIAL_DATATYPE = "SERIAL";
+	
+	public static String TYPE_DELETE_ROW	= "DELETE ROW";
 	
 	public static String CONVERSION_TYPE_PRIVACY_DELETED = "PRIVACY DELETED";
 	
@@ -205,7 +221,9 @@ public class GlobalConstants {
 	public static String ERR_MODULE_MGMT_INSERT		= "Facing issues in inserting data in GDPR Output table - RUN_MODULE_MGMT for the module. ";
 	public static String ERR_MODULE_MGMT_FETCH		= "Facing issues in fetching data from GDPR Output table - RUN_MODULE_MGMT. ";
 			
-	public static String MSG_OLD_RUN_FETCHED		= "Old run detail fetched. Run Id : ";
+	public static String MSG_OLD_RUN_NOT_SUCCESSFUL	= "Please verify the environment thoroughly and change the Run Status to RE-RUN "
+			+ "to reinitate on with the old run. "; 
+	public static String MSG_OLD_RUN_FETCHED		= "Re-run Initiated. Old run detail fetched. Run Id : ";
 	public static String MSG_NEW_RUN_INITIATED		= "New run initiated. Run Id : ";
 	
 	public static String MSG_FILE_ROWS_PROCESSED_0	= "No new rows are added to Anonymization file for processing.";

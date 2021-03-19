@@ -20,6 +20,7 @@ import com.amazon.gdpr.model.gdpr.output.RunModuleMgmt;
 import com.amazon.gdpr.model.gdpr.output.RunSummaryMgmt;
 import com.amazon.gdpr.util.GdprException;
 import com.amazon.gdpr.util.GlobalConstants;
+import com.amazon.gdpr.util.SqlQueriesConstant;
 
 /****************************************************************************************
  * This Service will initiate the TaggingBatchConfig Job  
@@ -76,8 +77,8 @@ public class TagDataProcessor {
 
 			try {
 				moduleStartDateTime = new Date();
-				
-				List<RunSummaryMgmt> lstRunSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId);
+				String query = SqlQueriesConstant.RUN_SUMMARY_MGMT_LIST_FETCH;
+				List<RunSummaryMgmt> lstRunSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId, query);
 				if(lstRunSummaryMgmt != null) {
 					for(RunSummaryMgmt runSummaryMgmt : lstRunSummaryMgmt) { 
 						JobParametersBuilder jobParameterBuilder= new JobParametersBuilder();
@@ -106,12 +107,14 @@ public class TagDataProcessor {
 				errorDetails = exception.getMessage();
 			} 
 	    	try {
-				moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
+	    		prevJobModuleStatus = moduleMgmtProcessor.prevJobModuleStatus(runId);
+				moduleStatus = (exceptionOccured || prevJobModuleStatus.equalsIgnoreCase(GlobalConstants.STATUS_FAILURE)) ? 
+						GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
 				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_DEPERSONALIZATION, 
 						GlobalConstants.SUB_MODULE_TAG_JOB_INITIALIZE, moduleStatus, moduleStartDateTime, 
 						new Date(), taggingDataStatus, errorDetails);
 				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
-				prevJobModuleStatus = moduleMgmtProcessor.prevJobModuleStatus(runId);
+				
 				if((! exceptionOccured) && GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(prevJobModuleStatus)){
 					depersonalizationProcessor.depersonalizationInitialize(runId);
 				}

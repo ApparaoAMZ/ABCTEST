@@ -16,6 +16,7 @@ public class RunModuleMgmt {
 	String comments;
 	String errorDetails;
 	int count;
+	String runStatus;
 	
 	public RunModuleMgmt(){
 		
@@ -52,6 +53,27 @@ public class RunModuleMgmt {
 			this.errorDetails = errorDetails.substring(GlobalConstants.INITIAL_INDEX, GlobalConstants.ERROR_DETAIL_SIZE-1);
 		else
 			this.errorDetails = errorDetails;
+	}
+	
+	
+	/**
+	 * @param moduleId
+	 * @param runId
+	 * @param moduleName
+	 * @param subModuleName
+	 * @param moduleStatus
+	 * @param comments
+	 * @param runstatus
+	 */
+	public RunModuleMgmt(long moduleId, long runId, String moduleName, String subModuleName, String moduleStatus, String comments, String runStatus) {
+		super();
+		this.moduleId = moduleId;
+		this.runId = runId;
+		this.moduleName = moduleName;
+		this.subModuleName = subModuleName;
+		this.moduleStatus = moduleStatus;
+		this.comments = comments;
+		this.runStatus = runStatus;
 	}
 
 	/**
@@ -193,4 +215,19 @@ public class RunModuleMgmt {
 	public void setCount(int count) {
 		this.count = count;
 	}
+
+	/**
+	 * @return the runStatus
+	 */
+	public String getRunStatus() {
+		return runStatus;
+	}
+
+	/**
+	 * @param runStatus the runStatus to set
+	 */
+	public void setRunStatus(String runStatus) {
+		this.runStatus = runStatus;
+	}
+	
 }

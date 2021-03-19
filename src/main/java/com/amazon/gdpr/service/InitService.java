@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.amazon.gdpr.dao.RunMgmtDaoImpl;
-import com.amazon.gdpr.model.gdpr.output.RunAnonymization;
 import com.amazon.gdpr.model.gdpr.output.RunSummaryMgmt;
 import com.amazon.gdpr.processor.AnonymizationFileProcessor;
 import com.amazon.gdpr.processor.BackupTableProcessor;
@@ -29,7 +28,6 @@ public class InitService {
 	public static String CURRENT_CLASS	= GlobalConstants.MODULE_INITIALIZATION;
 	public static String STATUS_SUCCESS = GlobalConstants.STATUS_SUCCESS;
 	
-	public List<RunAnonymization> lstRunAnonymization=null;
 	public Map<String, RunSummaryMgmt> mapRunSummaryMgmt=null;
 	private long runId = 0;
 	
@@ -69,8 +67,11 @@ public class InitService {
 			//Initiates the run. Establishes the run in the DB
 			runId =  runMgmtProcessor.initializeRun(runName);
 			initServiceReturnStatus = runMgmtProcessor.initializeRunStatus;
-			String[] initServiceStatus = initialize(runId, selectedCountries);
-			initServiceReturnStatus = initServiceReturnStatus + GlobalConstants.SEMICOLON_STRING + initServiceStatus[1];
+			Boolean oldRun = runMgmtProcessor.oldRun; 
+			if(! oldRun) {
+				String[] initServiceStatus = initialize(runId, selectedCountries);
+				initServiceReturnStatus = initServiceReturnStatus + GlobalConstants.SEMICOLON_STRING + initServiceStatus[1];
+			}			
 		} catch(GdprException exception) {
 			exceptionOccured = true;
 			initServiceReturnStatus = initServiceReturnStatus + exception.getExceptionMessage();

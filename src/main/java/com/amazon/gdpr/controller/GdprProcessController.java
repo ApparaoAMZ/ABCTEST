@@ -80,10 +80,8 @@ public class GdprProcessController {
 		
 		GdprInput gdprInputSubmitted = initService.loadGdprForm();
 		
-		long runId = runMgmtDaoImpl.fetchLastRunDetail().getRunId();
-
-		System.out.println("runId-Run Name : " + runId);
-
+		//long runId = runMgmtDaoImpl.fetchLastRunDetail().getRunId();
+     	//System.out.println("runId-Run Name : " + runId);
 		//String backupServiceStatus = backupService.backupService(runId);		
 		//System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: After Backup Service : "+backupServiceStatus+"::" + LocalTime.now());
 		

@@ -21,6 +21,7 @@ import com.amazon.gdpr.model.gdpr.output.RunModuleMgmt;
 import com.amazon.gdpr.model.gdpr.output.RunSummaryMgmt;
 import com.amazon.gdpr.util.GdprException;
 import com.amazon.gdpr.util.GlobalConstants;
+import com.amazon.gdpr.util.SqlQueriesConstant;
 
 /****************************************************************************************
  * This Service will initiate the DepersonalizationBatchConfig Job  
@@ -81,8 +82,8 @@ public class AnonymizeProcessor {
 
 			try {
 				moduleStartDateTime = new Date();
-				
-				List<RunSummaryMgmt> lstRunSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId);
+				String query = SqlQueriesConstant.RUN_SUMMARY_MGMT_DEPER_FETCH;
+				List<RunSummaryMgmt> lstRunSummaryMgmt = runSummaryDaoImpl.fetchRunSummaryDetail(runId, query);
 				if(lstRunSummaryMgmt != null) {
 					for(RunSummaryMgmt runSummaryMgmt : lstRunSummaryMgmt) { 
 						JobParametersBuilder jobParameterBuilder= new JobParametersBuilder();

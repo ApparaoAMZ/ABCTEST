@@ -29,8 +29,8 @@ import com.amazon.gdpr.view.GdprInput;
 public class RunMgmtProcessor {
 		
 	private static String CURRENT_CLASS		 		= GlobalConstants.CLS_RUNMGMTPROCESSOR;
-	private static String STATUS_FAILURE			= GlobalConstants.STATUS_FAILURE;
 	public String initializeRunStatus = "";
+	public Boolean oldRun = false;
 	
 	@Autowired
 	RunMgmtDaoImpl runMgmtDaoImpl;
@@ -43,6 +43,12 @@ public class RunMgmtProcessor {
 	
 	@Autowired
 	ModuleMgmtProcessor moduleMgmtProcessor;
+	
+	@Autowired
+	TagDataProcessor tagDataProcessor;
+
+	@Autowired
+	AnonymizeProcessor depersonalizationProcessor;
 	
 	/**
 	 * This method handled the initialization of the current run
@@ -57,60 +63,50 @@ public class RunMgmtProcessor {
 		Boolean exceptionOccured = false;
 		Date moduleStartDateTime = null;
 		String errorDetails = "";
+		String subModule = "";
 		
 		try{
-			moduleStartDateTime = new Date();
+			moduleStartDateTime = new Date();	
 			//Fetch lastRunId if failed
-			RunModuleMgmt module = oldRunVerification();
-			if(module == null){
+			
+			RunMgmt runMgmt = runMgmtDaoImpl.fetchLastRunDetail();
+			if(runMgmt != null){
+				String runStatus = runMgmt.getRunStatus().trim();
+				if(GlobalConstants.STATUS_FAILURE.equalsIgnoreCase(runStatus) ||
+						GlobalConstants.STATUS_INPROGRESS.equalsIgnoreCase(runStatus)) {
+					initializeRunStatus = GlobalConstants.MSG_OLD_RUN_NOT_SUCCESSFUL;
+					oldRun = true;
+				} else if(GlobalConstants.STATUS_RERUN.equalsIgnoreCase(runStatus)) {
+					oldRun = true;
+					runId = runMgmt.getRunId();
+					subModule = GlobalConstants.SUB_MODULE_RERUN_INITIALIZE;				
+					String pastRunStatus = reinitiatePendingActivity(runId);
+					initializeRunStatus = GlobalConstants.MSG_OLD_RUN_FETCHED + runId+". "+pastRunStatus;
+				}
+			} 
+			if(! oldRun) {
 				runId = initiateNewRun(runName);
+				subModule = GlobalConstants.SUB_MODULE_RUN_INITIALIZE;
 				initializeRunStatus = GlobalConstants.MSG_NEW_RUN_INITIATED + runId;
-			} else {
-				runId = module.getRunId();
-				initializeRunStatus = GlobalConstants.MSG_OLD_RUN_FETCHED + runId;
-			}			
+			}
 		} catch(GdprException exception) {
-			initializeRunStatus = initializeRunStatus + "Facing issues in initializing new Run. ";
+			initializeRunStatus = initializeRunStatus + "Facing issues in initializing the Run. ";
 			errorDetails = exception.getStackTrace().toString();
 		}
-		try {			
-			String moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
-			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, GlobalConstants.SUB_MODULE_RUN_INITIALIZE,
-					moduleStatus, moduleStartDateTime, new Date(), initializeRunStatus, errorDetails);
-			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
+		try {
+			if(runId > 0) {
+				String moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
+				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, subModule,
+						moduleStatus, moduleStartDateTime, new Date(), initializeRunStatus, errorDetails);
+				moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
+			}
 		} catch(GdprException exception) {
 			exceptionOccured = true;
 			initializeRunStatus = initializeRunStatus + exception.getExceptionMessage();
 		}		
 		return runId;
 	}		
-	
-	/**
-	 * The last failure run is fetched and verified if it needs to be proceeded on 
-	 * @return Returns the last Failure entry of the RunModuleMgmt
-	 */
-	public RunModuleMgmt oldRunVerification() throws GdprException {
-		String CURRENT_METHOD = "oldRunVerification";		
-		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
-		String errorDetails = "";
-		
-		try{
-			RunMgmt runMgmt = runMgmtDaoImpl.fetchLastRunDetail();
-			if(runMgmt != null && STATUS_FAILURE.equalsIgnoreCase(runMgmt.getRunStatus()) ){
-				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Past Failure RunID : "+runMgmt.getRunId());
-			}else {
-				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: No past failure run available. ");
-				return null;
-			}
-		} catch(Exception exception) {	
-			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+GlobalConstants.ERR_OLD_RUN_FETCH);
-			exception.printStackTrace();
-			errorDetails = exception.getMessage();
-			throw new GdprException(GlobalConstants.ERR_OLD_RUN_FETCH, errorDetails);
-		}
-		return null;
-	}
-		
+			
 	/**
 	 * A new run is initiated in this method. An entry is made in the RunMgmt table for this run
 	 * @param runName The description of the current run is being maintained
@@ -173,7 +169,7 @@ public class RunMgmtProcessor {
 			gdprInput.setLstCountry(lstCountryCode);
 			gdprInput.setMapRegionCountry(mapRegionCountry);
 			loadCountryDtlStatus = GlobalConstants.MSG_LOAD_FORM;
-		} catch(Exception exception){			
+		} catch (Exception exception){			
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+GlobalConstants.ERR_LOAD_FORM);
 			exception.printStackTrace();
 			loadCountryDtlStatus = GlobalConstants.ERR_LOAD_FORM;
@@ -181,5 +177,83 @@ public class RunMgmtProcessor {
 			throw new GdprException(loadCountryDtlStatus, errorDetails);
 		}
 		return gdprInput;
+	}
+	
+	public String reinitiatePendingActivity(long runId) throws GdprException {
+		String CURRENT_METHOD = "reinitiatePendingActivity";
+		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Inside method");
+		String pastRunStatus = "";
+		Boolean anonymizeRerun = false;		
+		
+		try{
+			List<RunModuleMgmt> lstRunModuleMgmt = runMgmtDaoImpl.fetchLastModuleMgmtDetail(runId);			
+			if(lstRunModuleMgmt != null && lstRunModuleMgmt.size() > 0) {
+				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: lstRunModuleMgmt size : "+lstRunModuleMgmt.size());
+			
+				for(RunModuleMgmt runModuleMgmt : lstRunModuleMgmt) {
+					String subModuleName = runModuleMgmt.getSubModuleName();
+					String moduleStatus = runModuleMgmt.getModuleStatus();
+					
+					System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: subModuleName : "+subModuleName);
+					System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: moduleStatus : "+moduleStatus);
+					System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: pastRunStatus : "+pastRunStatus);
+					
+					if(GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE.equalsIgnoreCase(subModuleName)) {
+						if(GlobalConstants.STATUS_FAILURE.equalsIgnoreCase(moduleStatus)) {
+							pastRunStatus = "The reorganizing of input data has failed. Please refresh the DB and rerun from start. ";
+							break;
+						} else {
+							pastRunStatus = "The reorganizing of input data was successful. ";
+							continue;
+						}
+					}
+					if(GlobalConstants.SUB_MODULE_BACKUPSERVICE_JOB_INITIALIZE.equalsIgnoreCase(subModuleName)) {
+						if(GlobalConstants.STATUS_FAILURE.equalsIgnoreCase(moduleStatus)) {
+							pastRunStatus = pastRunStatus + "The backup of the run has failed. Please refresh the DataLoad, "
+									+ "GDPR_Depersonalization table and rerun from start. ";
+							break;
+						} else {
+							pastRunStatus = pastRunStatus + "The backup of the run was successful. ";
+							continue;
+						}
+					}
+					if(GlobalConstants.SUB_MODULE_TAG_JOB_INITIALIZE.equalsIgnoreCase(subModuleName)) { 
+						if (GlobalConstants.STATUS_FAILURE.equalsIgnoreCase(moduleStatus)) {
+							pastRunStatus = pastRunStatus + "The tagging of the data has failed. Please refresh the failed tables data "
+									+ "and update the status of the module to reRun and restart the run. ";						
+							break;
+						} else if(GlobalConstants.STATUS_RERUN.equalsIgnoreCase(moduleStatus)) {
+							pastRunStatus = pastRunStatus + "The tagging of the data is restarted. ";
+							tagDataProcessor.taggingInitialize(runId);
+							break;
+						} else {
+							pastRunStatus = pastRunStatus + "The tagging of the data was successful. ";
+							anonymizeRerun = true;
+							continue;
+						}
+					}						
+					if(GlobalConstants.SUB_MODULE_ANONYMIZE_JOB_INITIALIZE.equalsIgnoreCase(subModuleName)) { 
+						if(GlobalConstants.STATUS_FAILURE.equalsIgnoreCase(moduleStatus)) {
+							pastRunStatus = pastRunStatus + "The archival of the data has failed. Please refresh the failed tables data "
+									+ "and update the status of the module to reRun and restart the run. ";						
+						} else if(GlobalConstants.STATUS_RERUN.equalsIgnoreCase(moduleStatus)) {							
+							anonymizeRerun = true;
+						} else if(GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(moduleStatus)) {
+							anonymizeRerun = false;
+							pastRunStatus = pastRunStatus + "The archival of the data was successful. No re-run is required.";
+						}
+						break;
+					}					
+				}		
+				if(anonymizeRerun) {
+					pastRunStatus = pastRunStatus + "The archival of the data is restarted. ";
+					depersonalizationProcessor.depersonalizationInitialize(runId);
+				}
+			}
+		} catch (Exception exception){			
+			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+GlobalConstants.ERR_LOAD_FORM);
+			throw new GdprException("Facing issues while verifying pending activity", exception.getMessage());
+		}
+		return pastRunStatus;
 	}
 }

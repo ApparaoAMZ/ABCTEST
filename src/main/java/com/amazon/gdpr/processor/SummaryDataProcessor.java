@@ -53,8 +53,8 @@ public class SummaryDataProcessor {
 			}			
 		} catch(GdprException exception) {
 			exceptionOccured = true;
-			summaryDataProcessStatus = GlobalConstants.ERR_RUN_SUMMARY_DATA_TRANSFORM;
-			errorDetails = exception.getMessage();
+			summaryDataProcessStatus = exception.getExceptionMessage();
+			errorDetails = exception.getExceptionDetail();
 		}
 		try {			
 			String moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
@@ -116,32 +116,38 @@ public class SummaryDataProcessor {
 				String currentImpactTableName = summaryData.getImpactTableName();
 				String currentImpactFieldName = summaryData.getImpactFieldName();
 				String currentImpactFieldType = summaryData.getImpactFieldType();
+				String currentTransformationType = summaryData.getTransformationType();
 								
 				if(prevCategoryId == 0){
 					backupQuery = backupQuery + currentImpactFieldName;
-					depersonalizationQuery = depersonalizationQuery +summaryData.getImpactSchema()+"."+currentImpactTableName + " SET " + 
+					if(currentTransformationType.equalsIgnoreCase(GlobalConstants.TYPE_DELETE_ROW)) {
+						depersonalizationQuery = "DELETE FROM "+summaryData.getImpactSchema()+"."+currentImpactTableName;
+					}else {
+						depersonalizationQuery = depersonalizationQuery +summaryData.getImpactSchema()+"."+currentImpactTableName + " SET " + 
 							fetchUpdateField(currentImpactFieldName, currentImpactFieldType, summaryData.getTransformationType());
-							
-							//+ currentImpactFieldName +" = "+summaryData.getTransformationType();
+					}	
 				}else{
 					if(currentCategoryId == prevCategoryId && currentRegion.equalsIgnoreCase(prevRegion) && 
 							currentCountryCode.equalsIgnoreCase(prevCountryCode) && prevImpactTableId == currentImpactTableId ) {
 						backupQuery = backupQuery + GlobalConstants.COMMA_STRING + currentImpactFieldName;
-					    depersonalizationQuery = depersonalizationQuery + GlobalConstants.COMMA_STRING 
-							+ fetchUpdateField(currentImpactFieldName, currentImpactFieldType, summaryData.getTransformationType());
-							//currentImpactFieldName +" = "+summaryData.getTransformationType();
+						if(! currentTransformationType.equalsIgnoreCase(GlobalConstants.TYPE_DELETE_ROW)) {
+						    depersonalizationQuery = depersonalizationQuery + GlobalConstants.COMMA_STRING 
+								+ fetchUpdateField(currentImpactFieldName, currentImpactFieldType, summaryData.getTransformationType());
+						}
 					} else {
 						backupQuery = backupQuery + " FROM " + prevImpactTableName; 
 						depersonalizationQuery = depersonalizationQuery + " WHERE ID = ?";
-						//depersonalizationQuery = depersonalizationQuery + " WHERE ID = :anonymizeId";						
 						runSummaryMgmt = new RunSummaryMgmt(runId, prevCategoryId, prevRegion, prevCountryCode, prevImpactTableId, 
 								prevImpactTableName, backupQuery, depersonalizationQuery);
 						//System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: runSummaryMgmt "+runSummaryMgmt.toString());
 						lstRunSummaryMgmt.add(runSummaryMgmt);
 						backupQuery = "SELECT "+currentImpactFieldName;
-						depersonalizationQuery = "UPDATE " + summaryData.getImpactSchema()+"."+currentImpactTableName + " SET " 
+						if(currentTransformationType.equalsIgnoreCase(GlobalConstants.TYPE_DELETE_ROW)) {
+							depersonalizationQuery = "DELETE FROM "+summaryData.getImpactSchema()+"."+currentImpactTableName;
+						}else {
+							depersonalizationQuery = "UPDATE " + summaryData.getImpactSchema()+"."+currentImpactTableName + " SET " 
 								+ fetchUpdateField(currentImpactFieldName, currentImpactFieldType, summaryData.getTransformationType());
-								//+ currentImpactFieldName +" = "+summaryData.getTransformationType();
+						}
 					}
 				}
 			
@@ -153,12 +159,9 @@ public class SummaryDataProcessor {
 				prevImpactTableName = currentImpactTableName;
 			}
 			backupQuery = backupQuery + " FROM " + prevImpactTableName;
-			depersonalizationQuery = depersonalizationQuery + " WHERE ID = ?";
-			//depersonalizationQuery = depersonalizationQuery + " WHERE ID = :anonymizeId";
-			
+			depersonalizationQuery = depersonalizationQuery + " WHERE ID = ?";			
 			runSummaryMgmt = new RunSummaryMgmt(runId, prevCategoryId, prevRegion, prevCountryCode, prevImpactTableId, prevImpactTableName,
 					backupQuery, depersonalizationQuery);
-			//System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: runSummaryMgmt "+runSummaryMgmt.toString());
 			lstRunSummaryMgmt.add(runSummaryMgmt);	
 		} catch (Exception exception) {	
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+GlobalConstants.ERR_RUN_SUMMARY_DATA_TRANSFORM);
@@ -172,16 +175,19 @@ public class SummaryDataProcessor {
 	public String fetchUpdateField(String fieldName, String fieldType, String conversionType) {
 		
 		String CURRENT_METHOD = "fetchUpdateField";
-		//System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: Inside method");		
-		String subQuery =  fieldName+" = (CASE WHEN ("+fieldName+" IS NULL OR TRIM("+fieldName+") = \'\') THEN "+fieldName+" ELSE ";
-		if(fieldType.startsWith(GlobalConstants.DATE_DATATYPE)){			
-			subQuery =  subQuery+" TO_DATE(TO_CHAR("+fieldName+", \'"+conversionType+"\'), \'DD-MM-YYYY\') END)";
-		}else if (fieldType.startsWith(GlobalConstants.TEXT_DATATYPE)){			
+		//System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: Inside method");
+		String subQuery =  "";
+		if(fieldType.startsWith(GlobalConstants.DATE_DATATYPE) || fieldType.startsWith(GlobalConstants.TIMESTAMP_DATATYPE)) {
+			subQuery =  fieldName+" = (CASE WHEN ("+fieldName+" IS NULL) THEN "+fieldName+" ELSE "
+					+" TO_DATE(TO_CHAR("+fieldName+", \'"+conversionType+"\'), \'DD-MM-YYYY\') END)";			
+		}else if (fieldType.startsWith(GlobalConstants.TEXT_DATATYPE) || fieldType.startsWith(GlobalConstants.VARCHAR_DATATYPE) || 
+				fieldType.startsWith(GlobalConstants.FORMULA_DATATYPE) || fieldType.startsWith(GlobalConstants.ADDRESS_DATATYPE)){	
+			subQuery =  fieldName+" = (CASE WHEN ("+fieldName+" IS NULL OR TRIM("+fieldName+") = \'\') THEN "+fieldName+" ELSE ";
 			switch (conversionType) {
 				case "PRIVACY DELETED" : 					
 					subQuery = subQuery + "\'Privacy Deleted\' END)";
 					break;
-				case "NULL" :					
+				case "NULL" :
 					subQuery =  subQuery + " null END)";
 					break;
 				case "EMPTY" :
@@ -194,8 +200,24 @@ public class SummaryDataProcessor {
 					subQuery =  subQuery +" \'"+conversionType+"\' END)";
 					break;
 			}
-		} else {
-			subQuery =  subQuery+"\'"+conversionType+"\' END)";
+		} else if (fieldType.startsWith(GlobalConstants.BOOLEAN_DATATYPE) || fieldType.contains(GlobalConstants.FLOAT_DATATYPE) || 
+				fieldType.contains(GlobalConstants.INTEGER_DATATYPE) || fieldType.contains(GlobalConstants.OID_DATATYPE) ||
+				fieldType.contains(GlobalConstants.SERIAL_DATATYPE)) {
+			//subQuery =  fieldName+" = (CASE WHEN ("+fieldName+" IS NULL) THEN "+fieldName+" ELSE "+conversionType+" END)";
+			subQuery =  fieldName+" = (CASE WHEN ("+fieldName+" IS NULL) THEN "+fieldName+" ELSE ";
+			
+			switch (conversionType) {
+			case "ALL ZEROS" :
+				subQuery =  subQuery +" TRANSLATE("+fieldName+", 123456789, 000000000) END)";
+				break;
+			default : 					
+				subQuery =  subQuery +" "+conversionType+" END)";
+				break;
+			}
+		
+		}else {
+			subQuery =  fieldName+" = (CASE WHEN ("+fieldName+" IS NULL OR TRIM("+fieldName+") = \'\') THEN "+fieldName+" ELSE "+
+						"\'"+conversionType+"\' END)";
 		}
 		return subQuery;
 	}

@@ -58,8 +58,7 @@ public class BackupTableProcessorDaoImpl {
 	public boolean alterBackupTable(String[] query) {
 		boolean altstatus=false;
 		String CURRENT_METHOD = "alterBackupTable";
-		System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + ":: Inside method");
-		System.out.println("alter queries : "+query);
+		//System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + ":: Inside method");
 		System.out.println("statt Alter : "+LocalTime.now());
 		int[] altcount=jdbcTemplate.batchUpdate(query);
 		System.out.println("end of alter : "+LocalTime.now());
@@ -80,11 +79,11 @@ public class BackupTableProcessorDaoImpl {
 	public Boolean refreshBackupTables(List<BackupTableDetails> lstBackupTableDetails) {
 		String CURRENT_METHOD = "refreshBackupTables";
 		Boolean bkpupRefreshStatus = true;
-		System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + ":: Inside method");
+		//System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + ":: Inside method");
 		Set<String> setBackupTables = new HashSet();
 		setBackupTables = getBackupTableList(lstBackupTableDetails);
 		System.out.println("setBackupTables truncate" + setBackupTables);
-		setBackupTables = lstBackupTableDetails.stream().map(e -> "GDPR." + e.getBackupTableName().toUpperCase())
+		setBackupTables = lstBackupTableDetails.stream().map(e -> "BKP." + e.getBackupTableName().toUpperCase())
 				.collect(Collectors.toSet());
 
 		String[] backpQuery = setBackupTables.toArray(new String[setBackupTables.size()]);
@@ -92,8 +91,8 @@ public class BackupTableProcessorDaoImpl {
 		for (int i = 0; i < bkpTableLenth; i++) {
 			backpQuery[i] = "DELETE FROM " + backpQuery[i];
 		}
-		System.out.println("statt of truncate essor : " + LocalTime.now());
-		System.out.println("before truncate" + Arrays.toString(backpQuery));
+		//System.out.println("statt of truncate essor : " + LocalTime.now());
+		//System.out.println("before truncate" + Arrays.toString(backpQuery));
         try {
             if (setBackupTables != null && !setBackupTables.isEmpty()) {
 
@@ -146,7 +145,7 @@ public class BackupTableProcessorDaoImpl {
 		for (int i = 0; i < backupTableLnth; i++) {
 			String backupTableName = lstBackupTableColumn.get(i).getBackupTableName();
 
-			lstBackupTables.add("GDPR." + backupTableName);
+			lstBackupTables.add("BKP." + backupTableName);
 
 		}
 

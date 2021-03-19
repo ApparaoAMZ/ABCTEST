@@ -130,13 +130,13 @@ public class RunSummaryDaoImpl {
 	 * Fetches the Run Summary Details rows
 	 * @return List<RunSummaryMgmt>
 	 */
-	public List<RunSummaryMgmt> fetchRunSummaryDetail(long runId) {
+	public List<RunSummaryMgmt> fetchRunSummaryDetail(long runId, String query) {
 		String CURRENT_METHOD = "fetchRunSummaryDetail";
 		System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: Inside method");
 		
 		@SuppressWarnings("unchecked")
-		List<RunSummaryMgmt> lstRunSummaryMgmt = jdbcTemplate.query(SqlQueriesConstant.RUN_SUMMARY_MGMT_LIST_FETCH, 
-				new Object[]{runId}, new RunSummaryMgmtRowMapper());		
+		List<RunSummaryMgmt> lstRunSummaryMgmt = jdbcTemplate.query(query, new Object[]{runId},  
+				new RunSummaryMgmtRowMapper());
 		return lstRunSummaryMgmt;
 	}
 

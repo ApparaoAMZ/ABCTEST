@@ -54,9 +54,9 @@ public class BackupTableProcessor {
 			moduleStartDateTime = new Date();
 			List<BackupTableDetails> lstBackupTableDetails = backupTableProcessorDaoImpl.fetchBackupTableDetails();
 			List<ImpactTableDetails> lstImpactTableDetails = gdprInputDaoImpl.fetchImpactTableDetailsMap();
-			if (refreshBackupTables(lstBackupTableDetails)) {
+			//if (refreshBackupTables(lstBackupTableDetails)) {
 				bkpupTblProcessStatus = bkpupTableCheck(lstBackupTableDetails, lstImpactTableDetails);
-			}
+			//}
 			backupStatus = GlobalConstants.MSG_BKPUP_TABLE_STATUS;
 		} catch (GdprException exception) {
 			System.out.println(
@@ -103,7 +103,7 @@ public class BackupTableProcessor {
 		// Fetch the Backup Table name from ImpactTable and truncate the tables
 		
 		try {
-			refreshBkpupTableStatus = backupTableProcessorDaoImpl.refreshBackupTables(lstBackupTableDetails);
+			//refreshBkpupTableStatus = backupTableProcessorDaoImpl.refreshBackupTables(lstBackupTableDetails);
 		} catch (Exception exception) {
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: "
 					+ GlobalConstants.ERR_RUN_BACKUP_TABLE_REFRESH);
@@ -157,11 +157,12 @@ public class BackupTableProcessor {
 				impactColumnName = impactTableDtls.getImpactColumnName().toUpperCase();
 				impactColumnType = impactTableDtls.getImpactColumnType().toUpperCase();
 				for (BackupTableDetails backupTableDtls : lstBackupTableDetails) {
-					backupTableName = backupTableDtls.getBackupTableName().toUpperCase().replaceAll("BKP_", "");
+					backupTableName = backupTableDtls.getBackupTableName().toUpperCase();
 					backupColumnName = backupTableDtls.getBackupTablecolumn().toUpperCase();
 					if (impactTableName.equalsIgnoreCase(backupTableName)
 							&& impactColumnName.equalsIgnoreCase(backupColumnName)) {
 						clExistStatus = true;
+						break;
 					}
 				}
 				if (!clExistStatus) {
@@ -175,7 +176,7 @@ public class BackupTableProcessor {
 						stAssmt = stAssmt + " ADD COLUMN " + impactColumnName + " " + impactColumnType + ",";
 						break;
 					case "EMAILMESSAGE":
-						stEmmsg = stEmmsg + " ADD COLUMN" + impactColumnName + " " + impactColumnType + ",";
+						stEmmsg = stEmmsg + " ADD COLUMN " + impactColumnName + " " + impactColumnType + ",";
 						alterEmmsg = true;
 						break;
 					case "ERROR_LOG__C":
@@ -222,69 +223,69 @@ public class BackupTableProcessor {
 			}
 			if (alterAppl) {
 				stAppl = StringUtils.chop(stAppl);
-				String query = "ALTER TABLE GDPR.BKP_APPLICATION__C" + stAppl + ";";
+				String query = "ALTER TABLE BKP.APPLICATION__C" + stAppl + ";";
 				altQury.add(query);
 			}
 			if (alterAssmt) {
 				stAssmt = StringUtils.chop(stAssmt);
-				String query = "ALTER TABLE GDPR.BKP_ASSESSMENT__C" + stAssmt + ";";
+				String query = "ALTER TABLE BKP.ASSESSMENT__C" + stAssmt + ";";
 				altQury.add(query);
 			}
 			if (alterEmmsg) {
 				stEmmsg = StringUtils.chop(stEmmsg);
-				String query = "ALTER TABLE GDPR.BKP_EMAILMESSAGE" + stEmmsg + ";";
+				String query = "ALTER TABLE BKP.EMAILMESSAGE" + stEmmsg + ";";
 				altQury.add(query);
 			}
 			if (alterErrLog) {
 				stErrLog = StringUtils.chop(stErrLog);
-				String query = "ALTER TABLE GDPR.BKP_ERROR_LOG__C" + stErrLog + ";";
+				String query = "ALTER TABLE BKP.ERROR_LOG__C" + stErrLog + ";";
 				altQury.add(query);
 			}
 			if (alterIntTrans) {
 				stIntTrans = StringUtils.chop(stIntTrans);
-				String query = "ALTER TABLE GDPR.BKP_INTEGRATION_TRANSACTION__C" + stIntTrans + ";";
+				String query = "ALTER TABLE BKP.INTEGRATION_TRANSACTION__C" + stIntTrans + ";";
 				altQury.add(query);
 			}
 			if (alterIntrv) {
 				stIntrv = StringUtils.chop(stIntrv);
-				String query = "ALTER TABLE GDPR.BKP_INTERVIEW__C" + stIntrv + ";";
+				String query = "ALTER TABLE BKP.INTERVIEW__C" + stIntrv + ";";
 				altQury.add(query);
 			}
 			if (alterNote) {
 				stNote = StringUtils.chop(stNote);
-				String query = "ALTER TABLE GDPR.BKP_ASSESSMENT__C" + stNote + ";";
+				String query = "ALTER TABLE BKP.NOTE" + stNote + ";";
 				altQury.add(query);
 			}
 			if (alterResponse) {
 				stResponse = StringUtils.chop(stResponse);
-				String query = "ALTER TABLE GDPR.BKP_RESPONSE__C" + stResponse + ";";
+				String query = "ALTER TABLE BKP.RESPONSE__C" + stResponse + ";";
 				altQury.add(query);
 			}
 			if (alterResponseAns) {
 				stResponseAns = StringUtils.chop(stResponseAns);
-				String query = "ALTER TABLE GDPR.BKP_RESPONSE_ANSWER__C" + stResponseAns + ";";
+				String query = "ALTER TABLE BKP.RESPONSE_ANSWER__C" + stResponseAns + ";";
 				altQury.add(query);
 			}
 			if (alterTask) {
 				stTask = StringUtils.chop(stTask);
-				String query = "ALTER TABLE GDPR.BKP_TASK" + stTask + ";";
+				String query = "ALTER TABLE BKP.TASK" + stTask + ";";
 				altQury.add(query);
 			}
 			if (alterUser) {
 				stUser = StringUtils.chop(stUser);
-				String query = "ALTER TABLE GDPR.BKP_USER" + stUser + ";";
+				String query = "ALTER TABLE BKP.USER" + stUser + ";";
 				altQury.add(query);
 			}
 			if (alterAtt) {
 				stAtt = StringUtils.chop(stAtt);
-				String query = "ALTER TABLE GDPR.BKP_ATTACHMENT" + stAtt + ";";
+				String query = "ALTER TABLE BKP.ATTACHMENT" + stAtt + ";";
 				altQury.add(query);
 			}
 			System.out.println("altQury altQury : "+altQury);
 			String[] altQryArr = new String[altQury.size()];
 			altQryArr = altQury.toArray(altQryArr);
 			
-			System.out.println("altQryArr altQryArr : "+altQryArr);
+			//System.out.println("altQryArr altQryArr : "+altQryArr);
 			if (altQury != null && !altQury.isEmpty()) {
 				bkpupTableCheckStatus=backupTableProcessorDaoImpl.alterBackupTable(altQryArr);
 			}

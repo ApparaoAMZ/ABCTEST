@@ -47,8 +47,24 @@ public class RunMgmtDaoImpl {
 		if(lstLastRunMgmt != null && lstLastRunMgmt.size() > 0){
 			runMgmt = lstLastRunMgmt.get(0);
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: Fetch Last Run Detail : "+runMgmt.getRunId());
-		}		
+		}else {
+			runMgmt = null;
+		}
 		return runMgmt;
+	}
+	
+	/**
+	 * Fetches the last run module detail from the RunModuleMgmt table
+	 * @return List<RunModuleMgmt> 
+	 */
+	public List<RunModuleMgmt> fetchLastModuleMgmtDetail(long runId){
+		String CURRENT_METHOD = "fetchLastModuleMgmtDetail";		
+		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
+		
+		@SuppressWarnings("unchecked")
+		List<RunModuleMgmt> lstRunModuleMgmt = jdbcTemplate.query(SqlQueriesConstant.MODULE_MGMT_LAST_RUN, 
+				new Object[]{runId}, new ModuleMgmtRowMapper());
+		return lstRunModuleMgmt;
 	}
 	
 	/**
@@ -151,6 +167,27 @@ public class RunMgmtDaoImpl {
 			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
 									
 			return new RunModuleMgmt(rs.getString("MODULE_STATUS"));
+		}
+	}
+	
+	
+	/****************************************************************************************
+	 * This rowMapper converts the row data from RUN_MODULE_MGMT table to RunModuleMgmt Object 
+	 ****************************************************************************************/
+	@SuppressWarnings("rawtypes")
+	class ModuleMgmtRowMapper implements RowMapper{
+		private String CURRENT_CLASS		 		= GlobalConstants.CLS_MODULEMGMTROWMAPPER;
+		
+		/* 
+		 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
+		 */
+		@Override
+		public RunModuleMgmt mapRow(ResultSet rs, int rowNum) throws SQLException {
+			String CURRENT_METHOD = "mapRow";
+			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
+								
+			return new RunModuleMgmt(rs.getLong("MODULE_ID"), rs.getLong("RUN_ID"), rs.getString("MODULE_NAME"), rs.getString("SUBMODULE_NAME"),					
+					rs.getString("MODULE_STATUS"), rs.getString("MODULE_COMMENTS"), rs.getString("RUN_STATUS"));
 		}
 	}
 

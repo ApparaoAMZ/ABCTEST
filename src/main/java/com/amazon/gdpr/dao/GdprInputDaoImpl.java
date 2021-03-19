@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.amazon.gdpr.model.gdpr.input.AnonymizationDetail;
 import com.amazon.gdpr.model.gdpr.input.Category;
 import com.amazon.gdpr.model.gdpr.input.ImpactField;
+import com.amazon.gdpr.model.gdpr.input.ImpactFieldAnonymization;
 import com.amazon.gdpr.model.gdpr.input.ImpactTable;
 import com.amazon.gdpr.model.gdpr.input.ImpactTableDetails;
 import com.amazon.gdpr.util.GlobalConstants;
@@ -170,6 +171,40 @@ public class GdprInputDaoImpl {
 		return lstAnonymizationDetail;
 	}
 	
+
+	/**
+	 * Fetches the ImpactField Table rows
+	 * @return List of ImpactField
+	 */
+	public List<ImpactFieldAnonymization> fetchImpactFieldAnonyMization(){
+		String CURRENT_METHOD = "fetchImpactFieldAnonyMization";		
+		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
+		
+		@SuppressWarnings("unchecked")
+		List<ImpactFieldAnonymization> lstImpactFieldAnonymization = jdbcTemplate.query(SqlQueriesConstant.IMPACTFIELD_ANONYMIZATION_DETAIL_FETCH, new ImpactFieldAnonymizationRowMapper());		
+		return lstImpactFieldAnonymization;
+	}
+		
+	/**
+	 * Fetches the ImpactFieldAnonyMization rows in map
+	 * @return Map <IMPACT_TABLE_NAME-IMPACT_FIELD_NAME, TRANSFORMATION_TYPE>
+	 */
+	public Map<String, String> fetchImpactFieldAnonyMizationMap(){	
+		String CURRENT_METHOD = "fetchImpactFieldAnonyMizationMap";		
+		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
+		
+		Map<String, String> mapImpactFieldAnonymization = null;
+		List<ImpactFieldAnonymization> lstImpactFieldAnonymization = fetchImpactFieldAnonyMization();
+		if(lstImpactFieldAnonymization != null && lstImpactFieldAnonymization.size() > 0){
+			mapImpactFieldAnonymization = new HashMap<String, String>();
+			for(ImpactFieldAnonymization impactFieldAnonymize : lstImpactFieldAnonymization) {
+				mapImpactFieldAnonymization.put(impactFieldAnonymize.getImpactTableName() +"-"+ impactFieldAnonymize.getImpactFieldName(),impactFieldAnonymize.getTransformationType());
+				//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: impactField "+impactField.toString());
+			}
+		}
+		return mapImpactFieldAnonymization;		
+	}
+	
 	/**
 	 * This method inserts the ImpactField values 
 	 * @param lstImpactField
@@ -244,7 +279,7 @@ public class GdprInputDaoImpl {
 								
 			}
 		});
-		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: insertCounts"+insertCounts);
+		//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: insertCounts"+insertCounts);
 	}
 	
 	
@@ -309,7 +344,24 @@ public class GdprInputDaoImpl {
 					rs.getString("IMPACT_FIELD_NAME"), rs.getString("IMPACT_FIELD_TYPE"));			
 		}
 	}
-	
+	/****************************************************************************************
+	 * This rowMapper converts the row data from IMPACTFIELD and Anponymization table to ImpactFieldAnonymization Object 
+	 ****************************************************************************************/
+	@SuppressWarnings("rawtypes")
+	class ImpactFieldAnonymizationRowMapper implements RowMapper{		
+		private String CURRENT_CLASS		 		= GlobalConstants.CLS_IMPACTFIELDANONYMIZAYIONROWMAPPER;
+		
+		/* 
+		 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
+		 */
+		@Override
+		public ImpactFieldAnonymization mapRow(ResultSet rs, int rowNum) throws SQLException {
+			String CURRENT_METHOD = "mapRow";		
+			//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
+									
+			return new ImpactFieldAnonymization(rs.getString("IMPACT_TABLE_NAME"), rs.getString("IMPACT_FIELD_NAME"), rs.getString("TRANSFORMATION_TYPE"));			
+		}
+	}
 	/****************************************************************************************
 	 * This rowMapper converts the row data from ANONYMIZATION_DETAIL table to AnonymizationDetail Object 
 	 ****************************************************************************************/

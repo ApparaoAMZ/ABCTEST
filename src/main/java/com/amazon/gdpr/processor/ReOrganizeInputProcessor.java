@@ -42,7 +42,10 @@ public class ReOrganizeInputProcessor {
 
 	@Autowired
 	ModuleMgmtProcessor moduleMgmtProcessor;
-			
+
+	@Autowired
+	TagDataProcessor tagDataProcessor;
+	
 	@Autowired
 	GdprInputDaoImpl gdprInputDaoImpl;
 	
@@ -114,7 +117,7 @@ public class ReOrganizeInputProcessor {
 			} 
 	    	try {
 				prevJobModuleStatus = moduleMgmtProcessor.prevJobModuleStatus(runId);				
-				moduleStatus = (exceptionOccured) ? 
+				moduleStatus = (exceptionOccured || prevJobModuleStatus.equalsIgnoreCase(GlobalConstants.STATUS_FAILURE)) ? 
 						GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
 				RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
 						GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE, moduleStatus, moduleStartDateTime, 
@@ -133,6 +136,7 @@ public class ReOrganizeInputProcessor {
 	    	try {
 	    		if((! exceptionOccured) && GlobalConstants.STATUS_SUCCESS.equalsIgnoreCase(prevJobModuleStatus)){
 					backupService.backupServiceInitiate(runId);
+	    			//tagDataProcessor.taggingInitialize(runId);
 				}
 			} catch(Exception exception) {
 				exceptionOccured = true;

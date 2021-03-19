@@ -95,7 +95,7 @@ public class RunMgmt {
 	/**
 	 * @param runStartDateTime the runStartDateTime to set
 	 */
-	private void setRunStartDateTime(Date runStartDateTime) {
+	public void setRunStartDateTime(Date runStartDateTime) {
 		this.runStartDateTime = runStartDateTime;
 	}
 
@@ -109,7 +109,7 @@ public class RunMgmt {
 	/**
 	 * @param runEndDateTime the runEndDateTime to set
 	 */
-	private void setRunEndDateTime(Date runEndDateTime) {
+	public void setRunEndDateTime(Date runEndDateTime) {
 		this.runEndDateTime = runEndDateTime;
 	}
 
@@ -123,7 +123,7 @@ public class RunMgmt {
 	/**
 	 * @param runComments the runComments to set
 	 */
-	private void setRunComments(String runComments) {
+	public void setRunComments(String runComments) {
 		this.runComments = runComments;
 	}	
 }

@@ -69,64 +69,7 @@ public class BackupService {
 		return GlobalConstants.MSG_BACKUPSERVICE_JOB;
 	}
 
-	/**
-	 * The main method which initiates the Backup Service
-	 * 
-	 * @param runId             The current run's reference
-	 * @param mapRunSummaryMgmt The overall summary of the Depersonalization is
-	 *                          managed in this Table
-	 * @return Updated Summary information with the backup detail loaded
-	 */
-	/*public String backupService(long runId) {
-		String CURRENT_METHOD = "backupService";
-		System.out.println(MODULE_DATABACKUP + " ::: " + CURRENT_METHOD + ":: Inside method");
-		List<RunModuleMgmt> lstRunModuleMgmt = gdprOutputDaoImpl.fetchLastModuleData(runId);
-		Map<String, String> mpaModuleData = lstRunModuleMgmt.stream()
-				.collect(Collectors.toMap(RunModuleMgmt::getSubModuleName, RunModuleMgmt::getModuleStatus,
-						(oldValue, newValue) -> newValue, LinkedHashMap::new));
-		System.out.println("mpaModuleData:::::" + mpaModuleData);
-		String jobStatus = mpaModuleData.get(GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE);
-		String batchModulestatus = mpaModuleData.get(GlobalConstants.SUB_MODULE_REORGANIZE_DATA);
-		String summaryModulestatus = mpaModuleData.get(GlobalConstants.SUB_MODULE_SUMMARY_DATA_INITIALIZE);
-		System.out.println("batchModulestatus:::::" + batchModulestatus);
-		boolean jobrunflag = false;
-		if (summaryModulestatus != null && summaryModulestatus.equalsIgnoreCase(GlobalConstants.STATUS_SUCCESS)) {
-			while (true) {
-				if (jobStatus != null && jobStatus.equalsIgnoreCase(GlobalConstants.STATUS_SUCCESS)
-						&& batchModulestatus != null
-						&& batchModulestatus.equalsIgnoreCase(GlobalConstants.STATUS_SUCCESS)) {
-					jobrunflag = true;
-					break;
-				} else {
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					lstRunModuleMgmt = gdprOutputDaoImpl.fetchLastModuleData(runId);
-					mpaModuleData = lstRunModuleMgmt.stream().collect(Collectors.toMap(RunModuleMgmt::getSubModuleName,
-							RunModuleMgmt::getModuleStatus, (oldValue, newValue) -> newValue, LinkedHashMap::new));
-					jobStatus = mpaModuleData.get(GlobalConstants.SUB_MODULE_REORGANIZE_JOB_INITIALIZE);
-					batchModulestatus = mpaModuleData.get(GlobalConstants.SUB_MODULE_REORGANIZE_DATA);
-					System.out.println("batchModulestatus2:::::" + batchModulestatus);
-
-					if (jobStatus != null && jobStatus.equalsIgnoreCase(GlobalConstants.STATUS_FAILURE)) {
-						break;
-					}
-				}
-
-				System.out.println("jobrunflag::::" + jobrunflag);
-			}
-
-			if (jobrunflag) {
-				BackupJobThread bkpJobThread = new BackupJobThread(runId);
-				bkpJobThread.start();
-			}
-		}
-		return GlobalConstants.MSG_BACKUPSERVICE_JOB;
-	}
-*/
+	
 	class BackupJobThread extends Thread {
 		long runId;
 
@@ -190,35 +133,5 @@ public class BackupService {
 		}
 	}
 
-	/**
-	 * The list of all the parent Ids for each of the table is loaded in a map
-	 * 
-	 * @return Returns the parentIds mapped to their respective tablename
-	 */
-	public Map<String, Set<String>> fetchParentIds() {
-		Map<String, Set<String>> mapParentIds = new HashMap<String, Set<String>>();
-		// Fetch Impact Table Id's parent table and Parent table Key and fetch
-		// respective table with condition
-		// load it in a Set
-		// Fetch the parent ids from respective table and load it in the map
-		return mapParentIds;
-	}
-
-	/**
-	 * Backup activity is performed and the details are loaded into the
-	 * RunSummaryMgmt table
-	 * 
-	 * @param mapParentIds      The parent ids are passed as conditions in the table
-	 * @param mapRunSummaryMgmt The current summary information is passed on
-	 * @return The updated summary information with the back up details
-	 */
-	public Map<String, RunSummaryMgmt> performBackup(Map<String, Set<String>> mapParentIds,
-			Map<String, RunSummaryMgmt> mapRunSummaryMgmt) {
-		Map<String, RunSummaryMgmt> mapRunSummaryMgmtUpdated = null;
-		// Navigate the RunSummaryMgmt map to fetch the Backup queries one by one
-		// With the parent ids as the criteria, fetch the records and load it into
-		// respective tables
-		// Add the counts in RunSummaryMgmt table
-		return mapRunSummaryMgmtUpdated;
-	}
+	
 }

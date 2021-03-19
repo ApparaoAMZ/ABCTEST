@@ -114,7 +114,7 @@ public class BackupServiceDaoImpl {
 	
 	@Transactional
 	public void updateTagTables(List<? extends AnonymizeTable> lstAnonymizeTable, String sqlQuery) {
-	    String CURRENT_METHOD = "anonymizeArchivalTables";		
+	    String CURRENT_METHOD = "updateTagTables";		
 		System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+":: Inside method");
 		
 		int[] updateCounts  = jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() { 						

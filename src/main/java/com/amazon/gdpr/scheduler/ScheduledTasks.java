@@ -51,7 +51,7 @@ public class ScheduledTasks {
 		try {
 			System.out.println("start of call BackupTable Refresh Scheduler:: " + LocalTime.now());
 			List<BackupTableDetails> lstBackupTableDetails = backupTableProcessorDaoImpl.fetchBackupTableDetails();
-			Boolean refreshStatus = backupTableProcessor.refreshBackupTables(lstBackupTableDetails);
+			//Boolean refreshStatus = backupTableProcessor.refreshBackupTables(lstBackupTableDetails);
 		} catch (Exception exception) {
 			System.out.println(CURRENT_CLASS + " ::: " + CURRENT_METHOD + " :: "
 					+ GlobalConstants.ERR_RUN_BACKUP_TABLE_REFRESHSCHEDULER);

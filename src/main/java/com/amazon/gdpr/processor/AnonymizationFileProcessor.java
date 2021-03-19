@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -105,12 +106,13 @@ public class AnonymizationFileProcessor {
 		try {
 			String moduleStatus = exceptionOccured ? GlobalConstants.STATUS_FAILURE : GlobalConstants.STATUS_SUCCESS;
 			RunModuleMgmt runModuleMgmt = new RunModuleMgmt(runId, GlobalConstants.MODULE_INITIALIZATION, 
-					GlobalConstants.SUB_MODULE_ANONYMIZE_JOB_INITIALIZE, moduleStatus, moduleStartDateTime, 
+					GlobalConstants.SUB_MODULE_RUN_ANONYMIZE_INITIALIZE, moduleStatus, moduleStartDateTime, 
 					new Date(), anonymizationProcessStatus, errorDetails);
 			moduleMgmtProcessor.initiateModuleMgmt(runModuleMgmt);
 			
 		} catch(GdprException exception) {
 			exceptionOccured = true;
+			exception.printStackTrace();
 			errorDetails = errorDetails + exception.getMessage();
 			anonymizationProcessStatus = anonymizationProcessStatus + GlobalConstants.ERR_MODULE_MGMT_INSERT;
 			throw new GdprException(anonymizationProcessStatus, errorDetails);
@@ -124,6 +126,7 @@ public class AnonymizationFileProcessor {
 				throw new GdprException(anonymizationProcessStatus, errorDetails);
 		} catch(GdprException exception) {
 			exceptionOccured = true;
+			exception.printStackTrace();
 			errorDetails = errorDetails + exception.getMessage();
 			anonymizationProcessStatus = anonymizationProcessStatus + GlobalConstants.ERR_RUN_MGMT_UPDATE;
 			throw new GdprException(anonymizationProcessStatus, errorDetails);
@@ -197,7 +200,7 @@ public class AnonymizationFileProcessor {
 				
 			}
 			if(setAnonymizationDetail != null && setAnonymizationDetail.size() > 0){
-				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: setAnonymizationDetail : "+setAnonymizationDetail.size());
+				//System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: setAnonymizationDetail : "+setAnonymizationDetail.size());
 				lstAnonymizationDetailUpdated.addAll(setAnonymizationDetail);
 				Collections.sort(lstAnonymizationDetailUpdated, new SortByFieldId());
 				if (lstAnonymizationDetail != null){
@@ -210,22 +213,21 @@ public class AnonymizationFileProcessor {
 				if (lstAnonymizationDetail != null){
 					List<Integer> impactFieldExists = lstAnonymizationDetail.stream().map(AnonymizationDetail::getImpactFieldId).collect(Collectors.toList());
 					List<Integer> impactFieldNew = lstAnonymizationDetailUpdated.stream().map(AnonymizationDetail::getImpactFieldId).collect(Collectors.toList());
-					System.out.println("impactFieldNew:::"+impactFieldNew);
+					//System.out.println("impactFieldNew:::"+impactFieldNew);
 					for(AnonymizationDetail ad:lstAnonymizationDetailUpdated) {
 						int impactfieldid=ad.getImpactFieldId();
 						if(impactFieldExists.contains(impactfieldid)) {						
-							System.out.println("impactfieldUpdate:::"+impactfieldid);
+							//System.out.println("impactfieldUpdate:::"+impactfieldid);
 							//lstAnonymizationDetailUpdated.remove(ad);
 							lstAnonymizationDetailtoUpdate.add(ad);
 						}					
 					  }
-					if(lstAnonymizationDetailtoUpdate!=null)
-					{
-					lstAnonymizationDetailUpdated.removeAll(lstAnonymizationDetailtoUpdate);
-					gdprInputDaoImpl.batchUpdateAnonymizationDetail(lstAnonymizationDetailtoUpdate, SqlQueriesConstant.BATCH_ROW_COUNT);
-					System.out.println("update count:::"+lstAnonymizationDetailtoUpdate.size());
+					if(lstAnonymizationDetailtoUpdate!=null) {
+						lstAnonymizationDetailUpdated.removeAll(lstAnonymizationDetailtoUpdate);
+						gdprInputDaoImpl.batchUpdateAnonymizationDetail(lstAnonymizationDetailtoUpdate, SqlQueriesConstant.BATCH_ROW_COUNT);
+						//System.out.println("update count:::"+lstAnonymizationDetailtoUpdate.size());
 					}
-					}
+				}
 				gdprInputDaoImpl.batchInsertAnonymizationDetail(lstAnonymizationDetailUpdated, SqlQueriesConstant.BATCH_ROW_COUNT);
 				insertCount = lstAnonymizationDetailUpdated.size();
 				System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: insertCount : "+insertCount);
@@ -277,7 +279,18 @@ public class AnonymizationFileProcessor {
     			AnonymizationInputView anonymizationInputView= new AnonymizationInputView();
     			while (cellsInRow.hasNext()) { 
     				//Cell currentCell = cellsInRow.next();
-    				String cellValue = cellsInRow.next().getStringCellValue();
+    				String cellValue = "";
+    				Cell nextCell = cellsInRow.next();
+    				    				
+    				if(nextCell.getCellType()== CellType.STRING) 
+    					cellValue = nextCell.getStringCellValue();
+    				else if(nextCell.getCellType()==CellType.NUMERIC)
+    					cellValue = String.valueOf(nextCell.getNumericCellValue());
+    				else if(nextCell.getCellType()==CellType.BOOLEAN)
+    					cellValue = String.valueOf(nextCell.getBooleanCellValue());
+    				else
+    					cellValue = nextCell.getStringCellValue();
+    				//String cellValue = cellsInRow.next().getStringCellValue();
     				cellValue = (cellValue != null && cellValue.length() > 0 ) ? cellValue.toUpperCase().trim() : GlobalConstants.EMPTY_STRING;
     				
     				switch(Integer.valueOf(cellIndex)){
@@ -329,11 +342,13 @@ public class AnonymizationFileProcessor {
     		workbook.close();
 		} catch (IOException exception) {
 			exceptionOccured = true;
+			exception.printStackTrace();
 			errorMessge= GlobalConstants.ERR_PARSE_ANONYMIZATION_IO;
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+errorMessge);			
 			errorDetails = exception.getMessage();
 		} catch(Exception exception) {
 			exceptionOccured = true;
+			exception.printStackTrace();
 			errorMessge= GlobalConstants.ERR_PARSE_ANONYMIZATION;
 			System.out.println(CURRENT_CLASS+" ::: "+CURRENT_METHOD+" :: "+errorMessge);			
 			errorDetails = errorDetails + exception.getMessage();
